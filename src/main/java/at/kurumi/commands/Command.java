@@ -1,6 +1,7 @@
 package at.kurumi.commands;
 
 import discord4j.core.GatewayDiscordClient;
+import discord4j.core.event.domain.interaction.ApplicationCommandInteractionEvent;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import discord4j.discordjson.json.ApplicationCommandRequest;
 import discord4j.discordjson.json.ImmutableApplicationCommandOptionData;
@@ -11,11 +12,32 @@ import java.util.List;
 public abstract class Command {
 
     /**
+     * Get the name this command should be listed under in Discord.
+     *
+     * @return name String
+     */
+    public abstract String getName();
+
+    /**
+     * Get a description of this command.
+     *
+     * @return description String
+     */
+    public abstract String getDescription();
+
+    /**
      * Get the list of options for this command.
      *
      * @return List of option data
      */
     public abstract List<ApplicationCommandOptionData> getOptions();
+
+    /**
+     * Take care of an event and respond.
+     *
+     * @param e an event to respond to
+     */
+    public abstract void handle(ApplicationCommandInteractionEvent e);
 
     /**
      * Create a global scoped command. Can be used everywhere. Global commands have a TTL of up to 1 hour so may be
