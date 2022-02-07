@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <!-- DBMS info -->
+        <property name="hibernate.connection.driver_class">org.postgresql.Driver</property>
+        <property name="dialect">org.hibernate.dialect.PostgreSQLDialect</property>
+
+        <!-- Host and login info -->
+        <property name="hibernate.connection.url">jdbc:postgresql://localhost:5432</property>
+        <property name="hibernate.connection.username">kurumi</property>
+        <property name="hibernate.connection.password">kurumi</property>
+
+        <property name="connection_pool_size">1</property>
+
+        <!-- No idea -->
+        <property name="show_sql">true</property>
+        <property name="transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</property>
+        <property name="hibernate.cache.provider_class">org.hibernate.cache.HashtableCacheProvider</property>
+        <property name="hibernate.hbm2ddl.auto">update</property>
+
+        <mapping resource="User.hbm.xml"/>
+        <mapping resource="Event.hbm.xml"/>
+    </session-factory>
+</hibernate-configuration>
