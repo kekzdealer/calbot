@@ -4,9 +4,11 @@ import at.kurumi.calendar.Event;
 import at.kurumi.commands.Command;
 import at.kurumi.commands.CommandUtil;
 import at.kurumi.db.Database;
+import at.kurumi.user.UserSLO;
 import discord4j.core.event.domain.interaction.ApplicationCommandInteractionEvent;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandOption;
+import discord4j.core.object.entity.Member;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,20 +22,34 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Optional;
 
 public class CalendarProgram extends Command {
 
     private static final Logger LOG = LogManager.getLogger("Calendar");
 
     // Dependencies - modify this for automatic DI in the future.
-    private final Database database;
+    private final EventSLO eventSLO;
+    private final UserSLO userSLO;
 
-    private final List<ApplicationCommandOptionData> options;
+    public CalendarProgram(EventSLO eventSLO, UserSLO userSLO) {
+        this.eventSLO = eventSLO;
+        this.userSLO = userSLO;
+    }
 
-    public CalendarProgram(Database database) {
-        this.database = database;
+    @Override
+    public String getName() {
+        return "calendar";
+    }
 
-        options = List.of(
+    @Override
+    public String getDescription() {
+        return "Create and manage calender events";
+    }
+
+    @Override
+    public List<ApplicationCommandOptionData> getOptions() {
+        return List.of(
                 super.optionData(
                         "title",
                         "The event title",
@@ -55,16 +71,6 @@ public class CalendarProgram extends Command {
     }
 
     @Override
-    public String getName() {
-        return "calendar";
-    }
-
-    @Override
-    public String getDescription() {
-        return "Create and manage calender events";
-    }
-
-    @Override
     public void handle(ApplicationCommandInteractionEvent e) {
         if(e instanceof ChatInputInteractionEvent) {
             final var event = (ChatInputInteractionEvent) e;
@@ -81,22 +87,9 @@ public class CalendarProgram extends Command {
             final var timestampStart = Timestamp.from(utcStart);
             final var timestampEnd = Timestamp.from(utcEnd);
 
-            Transaction trx = null;
-            try (final var session = database.openSession()){
-                trx = session.beginTransaction();
-                final var eventORM = new Event();
-                eventORM.setTitle(title);
-                eventORM.setStart(timestampStart);
-                eventORM.setEnd(timestampEnd);
-                session.persist(eventORM);
-                trx.commit();
-            } catch (HibernateException hibernateException) {
-                if(trx != null) {
-                    trx.rollback();
-                }
-                LOG.error("Aborted transaction");
-                e.reply("Failed to save event");
-            }
+            final var snowflake = event.getInteraction()
+                    .getMember().stream()
+                    .map(member -> Optional.of(member.getId())).
 
             e.reply("Saved event: " + title);
         } else {
@@ -116,8 +109,4 @@ public class CalendarProgram extends Command {
         return zonedDateTime.toInstant();
     }
 
-    @Override
-    public List<ApplicationCommandOptionData> getOptions() {
-        return options;
-    }
 }
