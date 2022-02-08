@@ -1,19 +1,14 @@
 package at.kurumi.calendar;
 
-import at.kurumi.calendar.Event;
 import at.kurumi.commands.Command;
 import at.kurumi.commands.CommandUtil;
-import at.kurumi.db.Database;
 import at.kurumi.user.UserSLO;
 import discord4j.core.event.domain.interaction.ApplicationCommandInteractionEvent;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandOption;
-import discord4j.core.object.entity.Member;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.HibernateException;
-import org.hibernate.Transaction;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -87,9 +82,10 @@ public class CalendarProgram extends Command {
             final var timestampStart = Timestamp.from(utcStart);
             final var timestampEnd = Timestamp.from(utcEnd);
 
+            // TODO unfinished stream
             final var snowflake = event.getInteraction()
                     .getMember().stream()
-                    .map(member -> Optional.of(member.getId())).
+                    .map(member -> Optional.of(member.getId()));
 
             e.reply("Saved event: " + title);
         } else {
