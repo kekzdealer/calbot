@@ -1,6 +1,18 @@
 # calbot
 Discord bot as interface for various programs
 
+## Common command structure
+```/<program> [target] <operation> [arg0...argN]```
+### program
+Name of the program you want to use. If the program uses a shorthand instead of the full name, it will be mentioned in the program description.
+### target
+Most programs will have a configurable default target that can be accessed without having to specify it.
+Otherwise this is where you set what, for example, shopping list you want to target.
+### operation
+Listing, adding, modifying, deleting: There'll be a list of operations in the program description.
+### arguments
+Not all operations require additional input, but wherever that is the case, those are specified at the end.
+
 ## User profiles
 Keeps track of your name and probably other stuff in the future. Basis for using the other programs.
 
