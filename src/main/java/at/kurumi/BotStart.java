@@ -1,12 +1,10 @@
 package at.kurumi;
 
-import at.kurumi.commands.CalenderEventCommand;
+import at.kurumi.calendar.CalendarProgram;
 import at.kurumi.commands.Command;
+import at.kurumi.db.Database;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.event.domain.interaction.ApplicationCommandInteractionEvent;
-import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
-import discord4j.core.object.command.ApplicationCommandInteractionOption;
-import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
 import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
@@ -26,12 +24,15 @@ public class BotStart {
             return;
         }
 
-        final var eventCommand = new CalenderEventCommand();
+        final var database = new Database();
+
+        final var calendarProgram = new CalendarProgram(database);
         Command.guildCommand(client,
                 136661702287556608L,
-                eventCommand.getName(),
-                eventCommand.getDescription(),
-                eventCommand.getOptions());
+                calendarProgram.getName(),
+                calendarProgram.getDescription(),
+                calendarProgram.getOptions());
+        COMMANDS.put(calendarProgram.getName(), calendarProgram);
 
         client.on(ApplicationCommandInteractionEvent.class, event -> {
             Optional.of(COMMANDS.get(event.getCommandName()))

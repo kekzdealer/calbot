@@ -1,35 +1,38 @@
-package at.kurumi.commands;
+package at.kurumi.calendar;
 
+import at.kurumi.calendar.Event;
+import at.kurumi.commands.Command;
+import at.kurumi.commands.CommandUtil;
+import at.kurumi.db.Database;
 import discord4j.core.event.domain.interaction.ApplicationCommandInteractionEvent;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
-import discord4j.core.object.command.ApplicationCommandInteractionOption;
-import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
 import discord4j.core.object.command.ApplicationCommandOption;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.hibernate.HibernateException;
+import org.hibernate.Transaction;
 
-import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.time.temporal.TemporalField;
 import java.util.List;
 
-/**
- * <ol>
- *     <li>name:String</li>
- *     <li>from:String, yyyy-mm-ddThh:mm</li>
- *     <li>to:String, yyyy-mm-ddThh:mm</li>
- * </ol>
- */
-public class CalenderEventCommand extends Command {
+public class CalendarProgram extends Command {
+
+    private static final Logger LOG = LogManager.getLogger("Calendar");
+
+    // Dependencies - modify this for automatic DI in the future.
+    private final Database database;
 
     private final List<ApplicationCommandOptionData> options;
 
-    public CalenderEventCommand() {
+    public CalendarProgram(Database database) {
+        this.database = database;
+
         options = List.of(
                 super.optionData(
                         "title",
@@ -53,7 +56,7 @@ public class CalenderEventCommand extends Command {
 
     @Override
     public String getName() {
-        return "event";
+        return "calendar";
     }
 
     @Override
@@ -78,10 +81,24 @@ public class CalenderEventCommand extends Command {
             final var timestampStart = Timestamp.from(utcStart);
             final var timestampEnd = Timestamp.from(utcEnd);
 
+            Transaction trx = null;
+            try (final var session = database.openSession()){
+                trx = session.beginTransaction();
+                final var eventORM = new Event();
+                eventORM.setTitle(title);
+                eventORM.setStart(timestampStart);
+                eventORM.setEnd(timestampEnd);
+                session.persist(eventORM);
+                trx.commit();
+            } catch (HibernateException hibernateException) {
+                if(trx != null) {
+                    trx.rollback();
+                }
+                LOG.error("Aborted transaction");
+                e.reply("Failed to save event");
+            }
 
-            // todo do the thing
-
-            e.reply("ayo");
+            e.reply("Saved event: " + title);
         } else {
             e.reply("Could not process event");
         }

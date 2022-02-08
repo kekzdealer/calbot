@@ -1,18 +1,26 @@
 package at.kurumi.calendar;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import at.kurumi.user.User;
+import jakarta.persistence.*;
 
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.HashSet;
+import java.util.Set;
 
+@Entity
+@Table(name = "Event")
 public class Event {
 
-    private int id;
-    private Timestamp start;
-    private Timestamp end;
+    @Column(name = "id") @Id @GeneratedValue    private int id;                 // Table PK
+    @Column(name = "title")                     private String title;           // Event title
+    @Column(name = "start")                     private Timestamp start;        // Event start timestamp
+    @Column(name = "end")                       private Timestamp end;          // Event end timestamp
+
+    @ManyToMany
+    @JoinTable(name = "event_user",
+            joinColumns = {@JoinColumn(name = "fkEvent")},
+            inverseJoinColumns = {@JoinColumn(name = "fkUser")})
+    private Set<User> users = new HashSet<>();
 
     public int getId() {
         return id;
@@ -20,6 +28,14 @@ public class Event {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public Timestamp getStart() {
@@ -38,41 +54,22 @@ public class Event {
         this.end = end;
     }
 
-    private static final Logger LOG = LogManager.getLogger();
-
-    public void createTable(Connection connection) {
-        LOG.info("Attempting to create event table");
-        final var ddl = "CREATE TABLE event(" +
-                "id INTEGER PRIMARY KEY," +
-                "title VARCHAR(200) NOT NULL," +
-                "start TIMESTAMP WITH TIME ZONE NOT NULL," +
-                "end TIMESTAMP WITH TIME ZONE NOT NULL);";
-        try {
-            connection.createStatement().executeUpdate(ddl);
-        } catch (SQLException e) {
-            LOG.error("Failed to create event table");
-            LOG.debug(e.getMessage());
-        }
+    public Set<User> getUsers() {
+        return users;
     }
 
-    public int insertEvent(Connection connection, String title, Timestamp start, Timestamp end) {
-        LOG.debug("Inserting event {} from {} to {}", title, start.toString(), end.toString());
-        final var dml = "INSERT INTO event(title, start, end) VALUES(?, ?, ?);";
-        try {
-            final var preparedStatement = connection.prepareStatement(dml);
-            preparedStatement.setString(0, title);
-
-            preparedStatement.setTimestamp(1, start);
-            preparedStatement.setTimestamp(2, end);
-            return preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            LOG.error("Failed to insert event");
-            LOG.debug(e.getMessage());
-            return 0;
-        }
+    public void setUsers(Set<User> users) {
+        this.users = users;
     }
 
-    public void deleteEvent(Connection connection, long id) {
-        // TODO implement deleteEvent
+    public void addUser(User user) {
+        users.add(user);
+        user.getEvents().add(this);
     }
+
+    public void removeUser(User user) {
+        users.remove(user);
+        user.getEvents().remove(this);
+    }
+
 }
