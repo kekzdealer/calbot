@@ -8,6 +8,34 @@ import java.sql.SQLException;
 
 public class User {
 
+    private int id;                 // Table PK
+    private long discordId;         // Discord user snowflake
+    private String name;            // Discord username or nickname if set
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public long getDiscordId() {
+        return discordId;
+    }
+
+    public void setDiscordId(long discordId) {
+        this.discordId = discordId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     private static final Logger LOG = LogManager.getLogger();
 
     public void createTable(Connection connection) {

@@ -1,4 +1,4 @@
-package at.kurumi.db;
+package at.kurumi.calendar;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -9,6 +9,34 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 
 public class Event {
+
+    private int id;
+    private Timestamp start;
+    private Timestamp end;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public Timestamp getStart() {
+        return start;
+    }
+
+    public void setStart(Timestamp start) {
+        this.start = start;
+    }
+
+    public Timestamp getEnd() {
+        return end;
+    }
+
+    public void setEnd(Timestamp end) {
+        this.end = end;
+    }
 
     private static final Logger LOG = LogManager.getLogger();
 
