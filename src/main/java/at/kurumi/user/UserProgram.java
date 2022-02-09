@@ -7,7 +7,9 @@ import discord4j.discordjson.json.ApplicationCommandOptionData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class UserProgram extends Command {
 
@@ -15,8 +17,12 @@ public class UserProgram extends Command {
 
     private final UserSLO userSLO;
 
+    private final Map<String, Runnable> operations = new HashMap<>();
+
     public UserProgram(UserSLO userSLO) {
         this.userSLO = userSLO;
+
+        operations.put("hello", this::hello); // TODO sth like this?
     }
 
     @Override
@@ -49,5 +55,12 @@ public class UserProgram extends Command {
     @Override
     public void handle(ApplicationCommandInteractionEvent e) {
 
+    }
+
+    private void hello() {
+        final var discordId = 11313131231L;
+        final var name = "UserXX11";
+
+        // TODO insert into db
     }
 }
