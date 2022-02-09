@@ -3,7 +3,6 @@ package at.kurumi;
 import at.kurumi.calendar.CalendarProgram;
 import at.kurumi.calendar.EventSLO;
 import at.kurumi.commands.Command;
-import at.kurumi.db.Database;
 import at.kurumi.user.UserProgram;
 import at.kurumi.user.UserSLO;
 import discord4j.core.DiscordClientBuilder;

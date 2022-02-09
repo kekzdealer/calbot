@@ -1,4 +1,4 @@
-package at.kurumi.db;
+package at.kurumi;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,8 +12,6 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 public class Database {
-
-    public static final String DBMS = "postgresql";
 
     private static final Logger LOG = LogManager.getLogger();
 
@@ -31,24 +29,6 @@ public class Database {
      */
     public Session openSession() {
         return sessionFactory.openSession();
-    }
-
-    /**
-     * Open a database connection.
-     *
-     * @param url database url in the form of host:port
-     * @param user the username
-     * @param password the password
-     * @return a connection object
-     * @throws SQLException if something goes wrong
-     */
-    private Connection connect(String url, String user, String password) throws SQLException {
-        final var properties = new Properties();
-        properties.put("user", user);
-        properties.put("password", password);
-        // using this format jdbc:postgresql://host:port/
-        final var jdbcString = String.format("jdbc:%s://%s/", DBMS, url);
-        return DriverManager.getConnection(jdbcString, properties);
     }
 
 }

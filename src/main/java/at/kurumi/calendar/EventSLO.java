@@ -1,6 +1,6 @@
 package at.kurumi.calendar;
 
-import at.kurumi.db.Database;
+import at.kurumi.Database;
 import at.kurumi.user.User;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
