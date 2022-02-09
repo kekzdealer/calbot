@@ -29,10 +29,9 @@ public class EventSLO {
             event.setTitle(title);
             event.setStart(Timestamp.from(start));
             event.setEnd(Timestamp.from(end));
+            event.addUser(creator);
+
             session.persist(event);
-
-            // TODO user - event mapping
-
             trx.commit();
             return Optional.of(event);
         } catch (HibernateException hibernateException) {

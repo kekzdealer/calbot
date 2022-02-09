@@ -7,7 +7,10 @@ import at.kurumi.db.Database;
 import at.kurumi.user.UserProgram;
 import at.kurumi.user.UserSLO;
 import discord4j.core.DiscordClientBuilder;
+import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.interaction.ApplicationCommandInteractionEvent;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
@@ -15,6 +18,8 @@ import java.util.Map;
 import java.util.Optional;
 
 public class BotStart {
+
+    private static final Logger LOG = LogManager.getLogger();
 
     private static final Map<String, Command> COMMANDS = new HashMap<>();
 
@@ -31,21 +36,8 @@ public class BotStart {
         final var userSLO = new UserSLO(database);
         final var eventSLO = new EventSLO(database);
 
-        final var calendarProgram = new CalendarProgram(eventSLO, userSLO);
-        Command.guildCommand(client,
-                136661702287556608L,
-                calendarProgram.getName(),
-                calendarProgram.getDescription(),
-                calendarProgram.getOptions());
-        COMMANDS.put(calendarProgram.getName(), calendarProgram);
-
-        final var userProgram = new UserProgram(userSLO);
-        Command.guildCommand(client,
-                136661702287556608L,
-                userProgram.getName(),
-                userProgram.getDescription(),
-                userProgram.getOptions());
-        COMMANDS.put(userProgram.getName(), userProgram);
+        registerCommand(client, new CalendarProgram(eventSLO, userSLO));
+        registerCommand(client, new UserProgram(userSLO));
 
         client.on(ApplicationCommandInteractionEvent.class, event -> {
             Optional.of(COMMANDS.get(event.getCommandName()))
@@ -57,6 +49,16 @@ public class BotStart {
 
         // has to be at the end
         client.onDisconnect().block();
+    }
+
+    public void registerCommand(GatewayDiscordClient client, Command command) {
+        Command.guildCommand(client,
+                136661702287556608L,
+                command.getName(),
+                command.getDescription(),
+                command.getOptions());
+        COMMANDS.put(command.getName(), command);
+        LOG.info("Registered {} command", command.getName());
     }
 
     public static void main(String[] args) {

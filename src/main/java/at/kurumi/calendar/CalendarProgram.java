@@ -1,19 +1,14 @@
 package at.kurumi.calendar;
 
-import at.kurumi.calendar.Event;
 import at.kurumi.commands.Command;
 import at.kurumi.commands.CommandUtil;
-import at.kurumi.db.Database;
 import at.kurumi.user.UserSLO;
 import discord4j.core.event.domain.interaction.ApplicationCommandInteractionEvent;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandOption;
-import discord4j.core.object.entity.Member;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.HibernateException;
-import org.hibernate.Transaction;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -22,7 +17,6 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
-import java.util.Optional;
 
 public class CalendarProgram extends Command {
 
@@ -74,26 +68,28 @@ public class CalendarProgram extends Command {
     public void handle(ApplicationCommandInteractionEvent e) {
         if(e instanceof ChatInputInteractionEvent) {
             final var event = (ChatInputInteractionEvent) e;
-
+            // Parse arguments
             final var title = CommandUtil.getCommandValue(event, "title");
-
             // Raw date-time strings as entered by the user, from the user's time zone
             final var start = CommandUtil.getCommandValue(event, "from");
             final var end = CommandUtil.getCommandValue(event, "to");
             // Correct offset to UTC
             final var utcStart = dateTimeAsUniversalTimestamp(start);
             final var utcEnd = dateTimeAsUniversalTimestamp(end);
-            // Wrap in java.sql.Timestamp for insertion into db
-            final var timestampStart = Timestamp.from(utcStart);
-            final var timestampEnd = Timestamp.from(utcEnd);
-
-            final var snowflake = event.getInteraction()
-                    .getMember().stream()
-                    .map(member -> Optional.of(member.getId())).
-
-            e.reply("Saved event: " + title);
+            // Identify user
+            final var snowflake = event.getInteraction().getUser().getId();
+            final var userOptional = userSLO.getUserByDiscordId(snowflake.asLong());
+            // Process data and reply
+            if(userOptional.isPresent()) {
+                final var eventORMOptional = eventSLO.createEvent(userOptional.get(), title, utcStart, utcEnd);
+                 eventORMOptional.ifPresentOrElse(
+                         ev -> e.reply(String.format("Created event \"%s\"", ev.getTitle())),
+                         () -> e.reply("Failed to save event"));
+            } else {
+                e.reply("Failed to identify user");
+            }
         } else {
-            e.reply("Could not process event");
+            e.reply("Input event type unsupported by this program");
         }
     }
 
