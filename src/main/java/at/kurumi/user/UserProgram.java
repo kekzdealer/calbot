@@ -3,12 +3,11 @@ package at.kurumi.user;
 import at.kurumi.commands.Command;
 import at.kurumi.commands.CommandUtil;
 import at.kurumi.commands.Operation;
+import at.kurumi.user.operations.HelloOperation;
 import discord4j.core.event.domain.interaction.ApplicationCommandInteractionEvent;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandOption;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,15 +15,10 @@ import java.util.Map;
 
 public class UserProgram extends Command {
 
-    private static final Logger LOG = LogManager.getLogger("User");
-
-    private final UserSLO userSLO;
-
     private final Map<String, Operation> operations = new HashMap<>();
 
+    // to be injected
     public UserProgram(UserSLO userSLO) {
-        this.userSLO = userSLO;
-
         Operation.insertIntoMap(operations, new HelloOperation(userSLO));
     }
 
@@ -49,7 +43,7 @@ public class UserProgram extends Command {
                 ),
                 super.optionData(
                         "argument0",
-                        "Optional argument",
+                        "Optional first argument",
                         ApplicationCommandOption.Type.STRING.getValue(),
                         false
                 ));
@@ -62,13 +56,9 @@ public class UserProgram extends Command {
 
             final var opName = CommandUtil.getCommandValue(e_, "operation");
             operations.get(opName).handle(e_);
+        } else {
+            e.reply("Input event type unsupported by this program");
         }
     }
 
-    private void hello(ApplicationCommandInteractionEvent e) {
-        final var discordId = 11313131231L;
-        final var name = "UserXX11";
-
-        // TODO insert into db
-    }
 }

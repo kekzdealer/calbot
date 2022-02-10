@@ -6,10 +6,14 @@ import discord4j.discordjson.json.ApplicationCommandOptionData;
 import discord4j.discordjson.json.ApplicationCommandRequest;
 import discord4j.discordjson.json.ImmutableApplicationCommandOptionData;
 import discord4j.discordjson.json.ImmutableApplicationCommandRequest;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 
 public abstract class Command {
+
+    protected final Logger LOG = LogManager.getLogger(getName() + "-command");
 
     /**
      * Get the name this command should be listed under in Discord.

@@ -1,9 +1,13 @@
-package at.kurumi.user;
+package at.kurumi.user.operations;
 
 import at.kurumi.commands.CommandUtil;
 import at.kurumi.commands.Operation;
+import at.kurumi.user.UserSLO;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 
+/**
+ * Change how the bot refers to you. Default will be the discord name you had during the "hello" operation.
+ */
 public class NicknameOperation extends Operation {
 
     private final UserSLO userSLO;

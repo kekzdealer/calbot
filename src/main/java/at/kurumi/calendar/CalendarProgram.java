@@ -20,12 +20,11 @@ import java.util.List;
 
 public class CalendarProgram extends Command {
 
-    private static final Logger LOG = LogManager.getLogger("Calendar");
-
     // Dependencies - modify this for automatic DI in the future.
     private final EventSLO eventSLO;
     private final UserSLO userSLO;
 
+    // to be injected
     public CalendarProgram(EventSLO eventSLO, UserSLO userSLO) {
         this.eventSLO = eventSLO;
         this.userSLO = userSLO;

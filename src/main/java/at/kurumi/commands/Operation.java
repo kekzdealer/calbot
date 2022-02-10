@@ -8,7 +8,7 @@ import java.util.Map;
 
 public abstract class Operation {
 
-    protected final Logger LOG = LogManager.getLogger(getName() + "Operation");
+    protected final Logger LOG = LogManager.getLogger(getName() + "-operation");
 
     public abstract String getName();
 

@@ -1,6 +1,7 @@
-package at.kurumi.user;
+package at.kurumi.user.operations;
 
 import at.kurumi.commands.Operation;
+import at.kurumi.user.UserSLO;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 
 /**
