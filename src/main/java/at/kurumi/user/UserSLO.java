@@ -61,4 +61,34 @@ public class UserSLO {
             return Optional.empty();
         }
     }
+
+    public Optional<User> updateUserNameByDiscordId(long discordId, String username) {
+        Transaction trx = null;
+        try (final var session = database.openSession()) {
+            trx = session.beginTransaction();
+
+            final var criteriaBuilder = session.getCriteriaBuilder();
+            var criteria = criteriaBuilder.createQuery(User.class);
+
+            final var root = criteria.from(User.class);
+            criteria = criteria.select(root)
+                    .where(criteriaBuilder.equal(root.get("discordId"), discordId));
+
+            final var query = session.createQuery(criteria);
+            final var user = query.getSingleResult();
+
+            user.setName(username);
+
+            trx.commit();
+
+            return Optional.of(user);
+        } catch (HibernateException hibernateException) {
+            if(trx != null) {
+                trx.rollback();
+            }
+            LOG.error("Failed to query user");
+            LOG.debug("Failed to query user by discordId: {}", discordId);
+            return Optional.empty();
+        }
+    }
 }

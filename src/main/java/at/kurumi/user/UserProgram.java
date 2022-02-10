@@ -1,7 +1,10 @@
 package at.kurumi.user;
 
 import at.kurumi.commands.Command;
+import at.kurumi.commands.CommandUtil;
+import at.kurumi.commands.Operation;
 import discord4j.core.event.domain.interaction.ApplicationCommandInteractionEvent;
+import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandOption;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import org.apache.logging.log4j.LogManager;
@@ -17,12 +20,12 @@ public class UserProgram extends Command {
 
     private final UserSLO userSLO;
 
-    private final Map<String, Runnable> operations = new HashMap<>();
+    private final Map<String, Operation> operations = new HashMap<>();
 
     public UserProgram(UserSLO userSLO) {
         this.userSLO = userSLO;
 
-        operations.put("hello", this::hello); // TODO sth like this?
+        Operation.insertIntoMap(operations, new HelloOperation(userSLO));
     }
 
     @Override
@@ -45,7 +48,7 @@ public class UserProgram extends Command {
                         true
                 ),
                 super.optionData(
-                        "argument 0",
+                        "argument0",
                         "Optional argument",
                         ApplicationCommandOption.Type.STRING.getValue(),
                         false
@@ -54,10 +57,15 @@ public class UserProgram extends Command {
 
     @Override
     public void handle(ApplicationCommandInteractionEvent e) {
+        if(e instanceof ChatInputInteractionEvent) {
+            final var e_ = (ChatInputInteractionEvent) e;
 
+            final var opName = CommandUtil.getCommandValue(e_, "operation");
+            operations.get(opName).handle(e_);
+        }
     }
 
-    private void hello() {
+    private void hello(ApplicationCommandInteractionEvent e) {
         final var discordId = 11313131231L;
         final var name = "UserXX11";
 
