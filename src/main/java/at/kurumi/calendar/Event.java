@@ -9,7 +9,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "Event")
-public class Event {
+public class Event implements Comparable<Event> {
 
     @Column(name = "id") @Id @GeneratedValue    private int id;                 // Table PK
     @Column(name = "title")                     private String title;           // Event title
@@ -72,4 +72,8 @@ public class Event {
         user.getEvents().remove(this);
     }
 
+    @Override
+    public int compareTo(Event o) {
+        return start.compareTo(o.getStart());
+    }
 }

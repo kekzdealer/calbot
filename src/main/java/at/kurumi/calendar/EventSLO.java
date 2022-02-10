@@ -9,7 +9,9 @@ import org.hibernate.Transaction;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class EventSLO {
 
@@ -91,6 +93,15 @@ public class EventSLO {
                     hibernateException.getMessage());
             return Optional.empty();
         }
+    }
+
+    public List<Event> getEventsInTimeSpanForUser(User user, Instant begin, Instant end) {
+        return user.getEvents().stream().filter(event -> {
+            final var startInstant = event.getStart().toInstant();
+            final var endInstant = event.getEnd().toInstant();
+            // Check if in time span
+            return startInstant.isAfter(begin) && endInstant.isBefore(end);
+        }).collect(Collectors.toList());
     }
 
 }
