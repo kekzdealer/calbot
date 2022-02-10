@@ -1,5 +1,8 @@
 package at.kurumi.calendar;
 
+import at.kurumi.calendar.operations.CreateOperation;
+import at.kurumi.calendar.operations.DeleteOperation;
+import at.kurumi.calendar.operations.TodayOperation;
 import at.kurumi.commands.Command;
 import at.kurumi.commands.CommandUtil;
 import at.kurumi.commands.Operation;
@@ -23,16 +26,13 @@ import java.util.Map;
 
 public class CalendarProgram extends Command {
 
-    // Dependencies - modify this for automatic DI in the future.
-    private final EventSLO eventSLO;
-    private final UserSLO userSLO;
-
-    private Map<String, Operation> commands = new HashMap<>();
+    private final Map<String, Operation> operations = new HashMap<>();
 
     // to be injected
     public CalendarProgram(EventSLO eventSLO, UserSLO userSLO) {
-        this.eventSLO = eventSLO;
-        this.userSLO = userSLO;
+        Operation.insertIntoMap(operations, new CreateOperation(eventSLO, userSLO));
+        Operation.insertIntoMap(operations, new TodayOperation(eventSLO, userSLO));
+        Operation.insertIntoMap(operations, new DeleteOperation(eventSLO, userSLO));
     }
 
     @Override
@@ -73,27 +73,10 @@ public class CalendarProgram extends Command {
     @Override
     public void handle(ApplicationCommandInteractionEvent e) {
         if(e instanceof ChatInputInteractionEvent) {
-            final var event = (ChatInputInteractionEvent) e;
-            // Parse arguments
-            final var title = CommandUtil.getCommandValue(event, "title");
-            // Raw date-time strings as entered by the user, from the user's time zone
-            final var start = CommandUtil.getCommandValue(event, "from");
-            final var end = CommandUtil.getCommandValue(event, "to");
-            // Correct offset to UTC
-            final var utcStart = dateTimeAsUniversalTimestamp(start);
-            final var utcEnd = dateTimeAsUniversalTimestamp(end);
-            // Identify user
-            final var snowflake = event.getInteraction().getUser().getId();
-            final var userOptional = userSLO.getUserByDiscordId(snowflake.asLong());
-            // Process data and reply
-            if(userOptional.isPresent()) {
-                final var eventORMOptional = eventSLO.createEvent(userOptional.get(), title, utcStart, utcEnd);
-                 eventORMOptional.ifPresentOrElse(
-                         ev -> e.reply(String.format("Created event \"%s\"", ev.getTitle())),
-                         () -> e.reply("Failed to save event"));
-            } else {
-                e.reply("Failed to identify user");
-            }
+            final var e_ = (ChatInputInteractionEvent) e;
+
+            final var opName = CommandUtil.getCommandValue(e_, Command.OPERATION_OPTION_DATA.name());
+            operations.get(opName).handle(e_);
         } else {
             e.reply("Input event type unsupported by this program");
         }

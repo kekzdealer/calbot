@@ -49,6 +49,39 @@ public class EventSLO {
         }
     }
 
+    public boolean deleteEventById(User participant, int eventId) {
+        Transaction trx = null;
+        try (final var session = database.openSession()) {
+            trx = session.beginTransaction();
+
+            final var criteriaBuilder = session.getCriteriaBuilder();
+            var criteria = criteriaBuilder.createQuery(Event.class);
+
+            final var root = criteria.from(Event.class);
+            criteria = criteria.select(root)
+                    .where(criteriaBuilder.equal(root.get("id"), eventId));
+
+            final var query = session.createQuery(criteria);
+            final var event = query.getSingleResult();
+
+            if(event.getUsers().contains(participant)) {
+                session.remove(event);
+                trx.commit();
+                return true;
+            } else {
+                trx.rollback();
+                return false;
+            }
+        } catch (HibernateException hibernateException) {
+            if(trx != null) {
+                trx.rollback();
+            }
+            LOG.error("Failed to delete event");
+            LOG.debug("Failed to delete event by id: {}", eventId);
+            return false;
+        }
+    }
+
     /**
      * Share an event from one user to another. A user has to have access to an event (either by creating it
      * or being invited by someone that already has access to it) to share it.

@@ -14,13 +14,13 @@ import java.util.List;
 
 public abstract class Command {
 
-    protected static final ImmutableApplicationCommandOptionData TARGET_OPTION_DATA = optionData(
+    public static final ImmutableApplicationCommandOptionData TARGET_OPTION_DATA = optionData(
             "target",
             "The target of this operation. If supported, the default target will be used, when left blank",
             ApplicationCommandOption.Type.STRING.getValue(),
             false
     );
-    protected static final ImmutableApplicationCommandOptionData OPERATION_OPTION_DATA = optionData(
+    public static final ImmutableApplicationCommandOptionData OPERATION_OPTION_DATA = optionData(
             "operation",
             "What operation to execute",
             ApplicationCommandOption.Type.STRING.getValue(),

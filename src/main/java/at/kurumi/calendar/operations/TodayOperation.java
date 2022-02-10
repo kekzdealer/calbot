@@ -8,8 +8,10 @@ import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 
 import java.time.*;
 import java.util.Collections;
-import java.util.List;
 
+/**
+ * List all events due today, in chronological order
+ */
 public class TodayOperation extends Operation {
 
     private final EventSLO eventSLO;

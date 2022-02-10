@@ -39,7 +39,7 @@ Events can be targets. They are referred to by their id. *(How do you get an eve
 `today`: List all events due today, in chronological order
 
 `delete`: Delete an event
-- `TARGET`: Id of the shopping list to delete. If not specified, the default list will be used
+- `TARGET`: Id of the event to delete. If not specified, the default event will be targeted.
 
 # Future plans
 ## Shopping List
