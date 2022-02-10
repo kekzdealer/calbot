@@ -22,7 +22,7 @@ No targets here. The target is always the default target: You
 `list` Print all user data
 
 `nickname`: Change how the bot refers to you. Default will be the discord name you had during the "hello" operation 
-- `nickname`: Your preferred new nickname
+- `<nickname>`: Your preferred new nickname
 
 `delete` Permanently delete all your data from the database
 
@@ -39,7 +39,7 @@ Events can be targets. They are referred to by their id. *(How do you get an eve
 `today`: List all events due today, in chronological order
 
 `delete`: Delete an event
-- `<id>`: The target event's id
+- `TARGET`: Id of the shopping list to delete. If not specified, the default list will be used
 
 # Future plans
 ## Shopping List
@@ -50,11 +50,11 @@ Each user can set one shopping list as default. The default list does not have t
 Shopping lists are targets. There shouldn't be too many lists per user, so they can be referred to by name.
 ### Operations
 `create`: Create a new shopping list
-- `title`: The title of the shopping list
+- `<title>`: The title of the shopping list
 
 `add`: Add an item to a shopping list
 - `TARGET`: Name of the shopping list the item should be added to. If not specified, the default list will be used
-- `item`: The item name that should be added
+- `<item>`: The item name that should be added
 
 `show`: Display a shopping list
 - `TARGET`: Name of the shopping list to display
@@ -62,7 +62,7 @@ Shopping lists are targets. There shouldn't be too many lists per user, so they 
 `list`: List all available shopping lists
 
 `default`: Set a shopping list as default
-- `name`: Name of the preferred default shopping list
+- `<name>`: Name of the preferred default shopping list
 
 ## Simple Tamagotchi style thingy
 idk always wanted to make one.
