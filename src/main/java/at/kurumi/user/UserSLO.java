@@ -91,4 +91,33 @@ public class UserSLO {
             return Optional.empty();
         }
     }
+
+    public boolean deleteUserByDiscordId(long discordId) {
+        Transaction trx = null;
+        try (final var session = database.openSession()) {
+            trx = session.beginTransaction();
+
+            final var criteriaBuilder = session.getCriteriaBuilder();
+            var criteria = criteriaBuilder.createQuery(User.class);
+
+            final var root = criteria.from(User.class);
+            criteria = criteria.select(root)
+                    .where(criteriaBuilder.equal(root.get("discordId"), discordId));
+
+            final var query = session.createQuery(criteria);
+            final var user = query.getSingleResult();
+
+            session.remove(user);
+            trx.commit();
+
+            return true;
+        } catch (HibernateException hibernateException) {
+            if(trx != null) {
+                trx.rollback();
+            }
+            LOG.error("Failed to delete user");
+            LOG.debug("Failed to delete user by discordId: {}", discordId);
+            return false;
+        }
+    }
 }

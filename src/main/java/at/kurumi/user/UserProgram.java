@@ -3,7 +3,10 @@ package at.kurumi.user;
 import at.kurumi.commands.Command;
 import at.kurumi.commands.CommandUtil;
 import at.kurumi.commands.Operation;
+import at.kurumi.user.operations.DeleteOperation;
 import at.kurumi.user.operations.HelloOperation;
+import at.kurumi.user.operations.ListOperation;
+import at.kurumi.user.operations.NicknameOperation;
 import discord4j.core.event.domain.interaction.ApplicationCommandInteractionEvent;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandOption;
@@ -20,6 +23,9 @@ public class UserProgram extends Command {
     // to be injected
     public UserProgram(UserSLO userSLO) {
         Operation.insertIntoMap(operations, new HelloOperation(userSLO));
+        Operation.insertIntoMap(operations, new ListOperation(userSLO));
+        Operation.insertIntoMap(operations, new NicknameOperation(userSLO));
+        Operation.insertIntoMap(operations, new DeleteOperation(userSLO));
     }
 
     @Override
