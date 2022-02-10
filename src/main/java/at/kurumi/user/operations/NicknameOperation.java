@@ -23,10 +23,7 @@ public class NicknameOperation extends Operation {
 
     @Override
     public void handle(ChatInputInteractionEvent e) {
-        final var discordId = e.getInteraction()
-                .getUser()
-                .getId()
-                .asLong();
+        final var discordId = CommandUtil.extractDiscordUserId(e);
 
         final var prefName = CommandUtil.getCommandValue(e, "argument0");
 

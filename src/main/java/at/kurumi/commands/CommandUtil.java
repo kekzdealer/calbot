@@ -26,4 +26,8 @@ public class CommandUtil {
                 .map(ApplicationCommandInteractionOptionValue::asString)
                 .orElse(alt);
     }
+
+    public static long extractDiscordUserId(ChatInputInteractionEvent e) {
+        return e.getInteraction().getUser().getId().asLong();
+    }
 }
