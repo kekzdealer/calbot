@@ -36,9 +36,13 @@ Events can be targets. They are referred to by their id. *(How do you get an eve
 - `<start>`: Date and time when the event should start
 - `<end>`: Date and time when the event should end
 
-`today`: List all events due today, in chronological order
+`today`: List all events due today, in chronological order.
 
-`delete`: Delete an event
+`share`: Share an event with another user.
+- `TARGET`: Id of the event to share. If not specified, the default event will be targeted.
+- `recipient`: Discord id of the recipient user.
+
+`delete`: Delete an event.
 - `TARGET`: Id of the event to delete. If not specified, the default event will be targeted.
 
 # Future plans
