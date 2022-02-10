@@ -82,16 +82,4 @@ public class CalendarProgram extends Command {
         }
     }
 
-    public static Instant dateTimeAsUniversalTimestamp(String localDateTime) throws DateTimeParseException {
-        final var formatter = DateTimeFormatter.ofPattern("dd:MM HH:mm");
-        // 2) java.time.Instant representation of the date-time from the user's time zone
-        final var localInstant = Instant.from(formatter.parse(localDateTime));
-        // 3) User local Instant is combined with time zone information
-        final var zonedDateTime = ZonedDateTime
-                // TODO get the zone data for the requesting user from the db, UTC default
-                .ofInstant(localInstant, ZoneId.systemDefault());
-        // 4) Convert back to Instant, but this time normalized to UTC
-        return zonedDateTime.toInstant();
-    }
-
 }
