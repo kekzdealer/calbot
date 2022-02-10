@@ -6,6 +6,9 @@ import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
 
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 public class CommandUtil {
 
@@ -27,7 +30,23 @@ public class CommandUtil {
                 .orElse(alt);
     }
 
+    public static Instant getCommandValueAsUTCInstant(ChatInputInteractionEvent e, String name)
+            throws DateTimeParseException {
+        final var dateString = getCommandValue(e, name);
+        // 1) create the parsing pattern
+        final var formatter = DateTimeFormatter.ofPattern("dd:MM HH:mm");
+        // 2) java.time.Instant representation of the date-time from the user's time zone
+        final var localInstant = Instant.from(formatter.parse(dateString));
+        // 3) User local Instant is combined with time zone information
+        final var zonedDateTime = ZonedDateTime
+                // TODO get the zone data for the requesting user from the db, UTC default
+                .ofInstant(localInstant, ZoneId.systemDefault());
+        // 4) Convert back to Instant, but this time normalized to UTC
+        return zonedDateTime.toInstant();
+    }
+
     public static long extractDiscordUserId(ChatInputInteractionEvent e) {
         return e.getInteraction().getUser().getId().asLong();
     }
+
 }

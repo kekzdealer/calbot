@@ -2,6 +2,7 @@ package at.kurumi.calendar;
 
 import at.kurumi.commands.Command;
 import at.kurumi.commands.CommandUtil;
+import at.kurumi.commands.Operation;
 import at.kurumi.user.UserSLO;
 import discord4j.core.event.domain.interaction.ApplicationCommandInteractionEvent;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
@@ -16,13 +17,17 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CalendarProgram extends Command {
 
     // Dependencies - modify this for automatic DI in the future.
     private final EventSLO eventSLO;
     private final UserSLO userSLO;
+
+    private Map<String, Operation> commands = new HashMap<>();
 
     // to be injected
     public CalendarProgram(EventSLO eventSLO, UserSLO userSLO) {
@@ -43,23 +48,25 @@ public class CalendarProgram extends Command {
     @Override
     public List<ApplicationCommandOptionData> getOptions() {
         return List.of(
-                super.optionData(
-                        "title",
-                        "The event title",
+                Command.TARGET_OPTION_DATA,
+                Command.OPERATION_OPTION_DATA,
+                Command.optionData(
+                        "argument0",
+                        "Optional first argument",
                         ApplicationCommandOption.Type.STRING.getValue(),
-                        true
+                        false
                 ),
-                super.optionData(
-                        "from",
-                        "Start date and time",
+                Command.optionData(
+                        "argument1",
+                        "Optional second argument",
                         ApplicationCommandOption.Type.STRING.getValue(),
-                        true
+                        false
                 ),
-                super.optionData(
-                        "to",
-                        "End date and time",
+                Command.optionData(
+                        "argument3",
+                        "Optional third argument",
                         ApplicationCommandOption.Type.STRING.getValue(),
-                        true
+                        false
                 ));
     }
 
@@ -92,7 +99,7 @@ public class CalendarProgram extends Command {
         }
     }
 
-    private Instant dateTimeAsUniversalTimestamp(String localDateTime) throws DateTimeParseException {
+    public static Instant dateTimeAsUniversalTimestamp(String localDateTime) throws DateTimeParseException {
         final var formatter = DateTimeFormatter.ofPattern("dd:MM HH:mm");
         // 2) java.time.Instant representation of the date-time from the user's time zone
         final var localInstant = Instant.from(formatter.parse(localDateTime));

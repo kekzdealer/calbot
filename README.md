@@ -2,7 +2,7 @@
 Discord bot as interface for various programs
 
 ## Common command structure
-```/<program> [target] <operation> [arg0...argN]```
+```/<program> [TARGET] <operation> [arg0...argN]```
 ### program
 Name of the program you want to use. If the program uses a shorthand instead of the full name, it will be mentioned in the program description.
 ### target
