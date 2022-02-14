@@ -5,6 +5,7 @@ import at.kurumi.commands.CommandUtil;
 import at.kurumi.commands.Operation;
 import at.kurumi.user.UserSLO;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
+import reactor.core.publisher.Mono;
 
 import java.time.*;
 import java.util.Collections;
@@ -33,7 +34,7 @@ public class TodayOperation extends Operation {
 
         final var user = userSLO.getUserByDiscordId(discordId);
 
-        user.ifPresentOrElse(u -> {
+        return user.map(u -> {
             /*
             Define "today" using two Instants from 00:00 - 23:59, from the user's time zone perspective,
             then convert both to UTC
@@ -51,12 +52,10 @@ public class TodayOperation extends Operation {
                     event.getTitle(),
                     event.getStart().getTime(),
                     event.getEnd().getTime())));
-            e.reply(reply.toString());
-        }, () -> {
-            e.reply("Sorry, I could not retrieve your user data.");
+            return e.reply(super.replyBuilder().content(reply.toString()).build());
+        }).orElseGet(() -> {
             LOG.error("Failed to retrieve user data for user with discordId {}", discordId);
+            return e.reply(super.replyBuilder().content("Sorry, I could not retrieve your user data.").build());
         });
     }
-
-
 }

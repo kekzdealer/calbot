@@ -2,6 +2,7 @@ package at.kurumi.calendar;
 
 import at.kurumi.calendar.operations.CreateOperation;
 import at.kurumi.calendar.operations.DeleteOperation;
+import at.kurumi.calendar.operations.ShareOperation;
 import at.kurumi.calendar.operations.TodayOperation;
 import at.kurumi.commands.Command;
 import at.kurumi.commands.CommandUtil;
@@ -27,6 +28,7 @@ public class CalendarProgram extends Command {
         Operation.insertIntoMap(operations, new CreateOperation(eventSLO, userSLO));
         Operation.insertIntoMap(operations, new TodayOperation(eventSLO, userSLO));
         Operation.insertIntoMap(operations, new DeleteOperation(eventSLO, userSLO));
+        Operation.insertIntoMap(operations, new ShareOperation(eventSLO, userSLO));
     }
 
     @Override
