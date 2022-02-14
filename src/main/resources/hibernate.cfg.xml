@@ -9,9 +9,9 @@
         <property name="dialect">org.hibernate.dialect.PostgreSQLDialect</property>
 
         <!-- Host and login info -->
-        <property name="hibernate.connection.url">jdbc:postgresql://localhost:5432</property>
+        <property name="hibernate.connection.url">jdbc:postgresql://localhost:5432/</property>
         <property name="hibernate.connection.username">kurumi</property>
-        <property name="hibernate.connection.password"></property>
+        <property name="hibernate.connection.password">kurumi</property>
 
         <property name="connection_pool_size">1</property>
 

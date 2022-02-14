@@ -22,7 +22,7 @@ public class DeleteOperation extends Operation {
     }
 
     @Override
-    public void handle(ChatInputInteractionEvent e) {
+    public Mono<Void> handle(ChatInputInteractionEvent e) {
         final var discordId = CommandUtil.extractDiscordUserId(e);
 
         if (userSLO.deleteUserByDiscordId(discordId)) {

@@ -21,7 +21,7 @@ public class HelloOperation extends Operation {
     }
 
     @Override
-    public void handle(ChatInputInteractionEvent e) {
+    public Mono<Void> handle(ChatInputInteractionEvent e) {
         final var discordUser = e.getInteraction().getUser();
         final var username = discordUser.getUsername();
         final var discordId = discordUser.getId().asLong();

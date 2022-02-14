@@ -22,7 +22,7 @@ public class NicknameOperation extends Operation {
     }
 
     @Override
-    public void handle(ChatInputInteractionEvent e) {
+    public Mono<Void> handle(ChatInputInteractionEvent e) {
         final var discordId = CommandUtil.extractDiscordUserId(e);
 
         final var prefName = CommandUtil.getCommandValue(e, "argument0");

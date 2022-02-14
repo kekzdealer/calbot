@@ -6,6 +6,8 @@ import at.kurumi.commands.CommandUtil;
 import at.kurumi.commands.Operation;
 import at.kurumi.user.UserSLO;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
+import discord4j.core.spec.InteractionApplicationCommandCallbackSpec;
+import reactor.core.publisher.Mono;
 
 public class DeleteOperation extends Operation {
 
@@ -23,26 +25,31 @@ public class DeleteOperation extends Operation {
     }
 
     @Override
-    public void handle(ChatInputInteractionEvent e) {
+    public Mono<Void> handle(ChatInputInteractionEvent e) {
+        final var messageSpec = InteractionApplicationCommandCallbackSpec.builder();
+
         final var discordId = CommandUtil.extractDiscordUserId(e);
 
         final var user = userSLO.getUserByDiscordId(discordId);
 
-        user.ifPresentOrElse(u -> {
+        return user.map(u -> {
             try {
                 final var target = Integer.parseInt(CommandUtil.getCommandValue(e, Command.TARGET_OPTION_DATA.name()));
                 final var success = eventSLO.deleteEventById(u, target);
                 if(success) {
-                    e.reply("Deleted event with id " + target);
+                    messageSpec.content("Deleted event with id " + target);
                 } else {
-                    e.reply("Sorry, I could not delete the even with id " + target);
+                    messageSpec.content("Sorry, I could not delete the even with id " + target);
                 }
+                return e.reply(messageSpec.build());
             } catch (NumberFormatException numberFormatException) {
-                e.reply("Invalid target format: Only integer numbers allowed");
+                messageSpec.content("Invalid target format: Only integer numbers allowed");
+                return e.reply(messageSpec.build());
             }
-        }, () -> {
-            e.reply("Sorry, I could not retrieve your user data.");
+        }).orElseGet(() -> {
             LOG.error("Failed to retrieve user data for user with discordId {}", discordId);
+            messageSpec.content("Sorry, I could not retrieve your user data.");
+            return e.reply(messageSpec.build());
         });
     }
 }

@@ -10,7 +10,9 @@ import at.kurumi.user.UserSLO;
 import discord4j.core.event.domain.interaction.ApplicationCommandInteractionEvent;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandOption;
+import discord4j.core.spec.InteractionApplicationCommandCallbackSpec;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
+import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.List;
@@ -63,14 +65,16 @@ public class CalendarProgram extends Command {
     }
 
     @Override
-    public void handle(ApplicationCommandInteractionEvent e) {
+    public Mono<Void> handle(ApplicationCommandInteractionEvent e) {
         if(e instanceof ChatInputInteractionEvent) {
             final var e_ = (ChatInputInteractionEvent) e;
 
             final var opName = CommandUtil.getCommandValue(e_, Command.OPERATION_OPTION_DATA.name());
-            operations.get(opName).handle(e_);
+            return operations.get(opName).handle(e_);
         } else {
-            e.reply("Input event type unsupported by this program");
+            final var messageSpec = InteractionApplicationCommandCallbackSpec.builder();
+            messageSpec.content("Input event type unsupported by this program");
+            return e.reply(messageSpec.build());
         }
     }
 

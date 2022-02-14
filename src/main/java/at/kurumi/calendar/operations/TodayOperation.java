@@ -28,7 +28,7 @@ public class TodayOperation extends Operation {
     }
 
     @Override
-    public void handle(ChatInputInteractionEvent e) {
+    public Mono<Void> handle(ChatInputInteractionEvent e) {
         final var discordId = CommandUtil.extractDiscordUserId(e);
 
         final var user = userSLO.getUserByDiscordId(discordId);

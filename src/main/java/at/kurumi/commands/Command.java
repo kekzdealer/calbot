@@ -3,12 +3,11 @@ package at.kurumi.commands;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.interaction.ApplicationCommandInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandOption;
-import discord4j.discordjson.json.ApplicationCommandOptionData;
-import discord4j.discordjson.json.ApplicationCommandRequest;
-import discord4j.discordjson.json.ImmutableApplicationCommandOptionData;
-import discord4j.discordjson.json.ImmutableApplicationCommandRequest;
+import discord4j.core.spec.InteractionApplicationCommandCallbackSpec;
+import discord4j.discordjson.json.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -18,7 +17,7 @@ public abstract class Command {
             "target",
             "The target of this operation. If supported, the default target will be used, when left blank",
             ApplicationCommandOption.Type.STRING.getValue(),
-            false
+            true
     );
     public static final ImmutableApplicationCommandOptionData OPERATION_OPTION_DATA = optionData(
             "operation",
@@ -54,8 +53,9 @@ public abstract class Command {
      * Take care of an event and respond.
      *
      * @param e an event to respond to
+     * @return the reply Mono
      */
-    public abstract void handle(ApplicationCommandInteractionEvent e);
+    public abstract Mono<Void> handle(ApplicationCommandInteractionEvent e);
 
     /**
      * Create a global scoped command. Can be used everywhere. Global commands have a TTL of up to 1 hour so may be
@@ -91,6 +91,22 @@ public abstract class Command {
         client.getRestClient().getApplicationService()
                 .createGuildApplicationCommand(applicationId, guildId, command)
                 .subscribe();
+    }
+
+    public static void removeGuildCommand(GatewayDiscordClient client, long guildId,
+                                          String commandName) {
+        final var applicationId = client.getApplicationInfo().block()
+                .getId()
+                .asLong();
+        final var applicationService = client.getRestClient().getApplicationService();
+        final var registeredCommands = applicationService
+                .getGuildApplicationCommands(applicationId, guildId)
+                .collectMap(ApplicationCommandData::name)
+                .block();
+
+        final var commandId = Long.parseLong(registeredCommands.get(commandName).id());
+
+        applicationService.deleteGuildApplicationCommand(applicationId, guildId, commandId).subscribe();
     }
 
     /**

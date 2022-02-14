@@ -10,7 +10,9 @@ import at.kurumi.user.operations.NicknameOperation;
 import discord4j.core.event.domain.interaction.ApplicationCommandInteractionEvent;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandOption;
+import discord4j.core.spec.InteractionApplicationCommandCallbackSpec;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
+import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.List;
@@ -41,13 +43,13 @@ public class UserProgram extends Command {
     @Override
     public List<ApplicationCommandOptionData> getOptions() {
         return List.of(
-                super.optionData(
+                Command.optionData(
                         "operation",
                         "What operation to execute",
                         ApplicationCommandOption.Type.STRING.getValue(),
                         true
                 ),
-                super.optionData(
+                Command.optionData(
                         "argument0",
                         "Optional first argument",
                         ApplicationCommandOption.Type.STRING.getValue(),
@@ -56,14 +58,16 @@ public class UserProgram extends Command {
     }
 
     @Override
-    public void handle(ApplicationCommandInteractionEvent e) {
+    public Mono<Void> handle(ApplicationCommandInteractionEvent e) {
         if(e instanceof ChatInputInteractionEvent) {
             final var e_ = (ChatInputInteractionEvent) e;
 
             final var opName = CommandUtil.getCommandValue(e_, "operation");
-            operations.get(opName).handle(e_);
+            return operations.get(opName).handle(e_);
         } else {
-            e.reply("Input event type unsupported by this program");
+            final var messageSpec = InteractionApplicationCommandCallbackSpec.builder();
+            messageSpec.content("Input event type unsupported by this program");
+            return e.reply(messageSpec.build());
         }
     }
 

@@ -19,18 +19,17 @@ import java.util.Optional;
 public class BotStart {
 
     private static final Logger LOG = LogManager.getLogger();
+    private static final long KURIS_LAB_GUILD_ID = 136661702287556608L;
 
-    private static final Map<String, Command> COMMANDS = new HashMap<>();
+    private final Map<String, Command> commands = new HashMap<>();
 
-    public void loginAndListen(String token) {
-        final var client = DiscordClientBuilder.create(token).build()
+    public GatewayDiscordClient login(String token) {
+        return DiscordClientBuilder.create(token).build()
                 .login()
                 .block();
+    }
 
-        if(client == null) {
-            return;
-        }
-
+    public void setup(GatewayDiscordClient client) {
         final var database = new Database();
         final var userSLO = new UserSLO(database);
         final var eventSLO = new EventSLO(database);
@@ -38,30 +37,32 @@ public class BotStart {
         registerCommand(client, new CalendarProgram(eventSLO, userSLO));
         registerCommand(client, new UserProgram(userSLO));
 
-        client.on(ApplicationCommandInteractionEvent.class, event -> {
-            Optional.of(COMMANDS.get(event.getCommandName()))
-                    .ifPresentOrElse(
-                            command -> command.handle(event),
-                            () -> event.reply("Unknown command"));
-            return Mono.empty();
-        }).subscribe();
+        // TODO temporary
+        Command.removeGuildCommand(client, KURIS_LAB_GUILD_ID, "calevent");
 
-        // has to be at the end
+        client.on(ApplicationCommandInteractionEvent.class, this::delegateToProgram).subscribe();
         client.onDisconnect().block();
     }
 
-    public void registerCommand(GatewayDiscordClient client, Command command) {
+    private Mono<Void> delegateToProgram(ApplicationCommandInteractionEvent event) {
+        return Optional.ofNullable(commands.get(event.getCommandName()))
+                .map(command -> event.reply(command.handle(event)))
+                .orElseGet(() -> event.reply("Unknown command"));
+    }
+
+    private void registerCommand(GatewayDiscordClient client, Command command) {
         Command.guildCommand(client,
-                136661702287556608L,
+                KURIS_LAB_GUILD_ID,
                 command.getName(),
                 command.getDescription(),
                 command.getOptions());
-        COMMANDS.put(command.getName(), command);
+        commands.put(command.getName(), command);
         LOG.info("Registered {} command", command.getName());
     }
 
     public static void main(String[] args) {
-        new BotStart().loginAndListen(args[0]);
+        final var o = new BotStart();
+        o.setup(o.login(args[0]));
     }
 
 }
