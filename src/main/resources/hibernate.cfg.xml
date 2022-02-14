@@ -19,6 +19,12 @@
         <property name="show_sql">true</property>
         <property name="transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</property>
         <property name="hibernate.cache.provider_class">org.hibernate.cache.HashtableCacheProvider</property>
-        <property name="hibernate.hbm2ddl.auto">update</property>
+
+        <!-- Makes it, so I don't need to worry about accidentally using reserved words as table/column names -->
+        <property name="hibernate.globally_quoted_identifiers">true</property>
+
+        <!-- automatically set up tables? create = create new tables each start, update = only updates if there were
+            DDL changes -->
+        <property name="hibernate.hbm2ddl.auto">create</property>
     </session-factory>
 </hibernate-configuration>

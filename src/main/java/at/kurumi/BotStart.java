@@ -37,16 +37,13 @@ public class BotStart {
         registerCommand(client, new CalendarProgram(eventSLO, userSLO));
         registerCommand(client, new UserProgram(userSLO));
 
-        // TODO temporary
-        Command.removeGuildCommand(client, KURIS_LAB_GUILD_ID, "calevent");
-
         client.on(ApplicationCommandInteractionEvent.class, this::delegateToProgram).subscribe();
         client.onDisconnect().block();
     }
 
     private Mono<Void> delegateToProgram(ApplicationCommandInteractionEvent event) {
         return Optional.ofNullable(commands.get(event.getCommandName()))
-                .map(command -> event.reply(command.handle(event)))
+                .map(command -> command.handle(event))
                 .orElseGet(() -> event.reply("Unknown command"));
     }
 

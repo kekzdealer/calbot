@@ -2,6 +2,7 @@ package at.kurumi.calendar;
 
 import at.kurumi.Database;
 import at.kurumi.user.User;
+import jakarta.persistence.PersistenceException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
@@ -36,7 +37,7 @@ public class EventSLO {
             session.persist(event);
             trx.commit();
             return Optional.of(event);
-        } catch (HibernateException hibernateException) {
+        } catch (PersistenceException persistenceException) {
             if(trx != null) {
                 trx.rollback();
             }
@@ -44,7 +45,7 @@ public class EventSLO {
             LOG.debug("Failed to persist event: {} created by {} -> {}",
                     title,
                     creator.getId(),
-                    hibernateException.getMessage());
+                    persistenceException.getMessage());
             return Optional.empty();
         }
     }
@@ -72,12 +73,12 @@ public class EventSLO {
                 trx.rollback();
                 return false;
             }
-        } catch (HibernateException hibernateException) {
+        } catch (PersistenceException persistenceException) {
             if(trx != null) {
                 trx.rollback();
             }
             LOG.error("Failed to delete event");
-            LOG.debug("Failed to delete event by id: {}", eventId);
+            LOG.debug(persistenceException.getMessage());
             return false;
         }
     }
@@ -114,7 +115,7 @@ public class EventSLO {
                 trx.commit();
                 return Optional.of(event);
             }
-        } catch (HibernateException hibernateException) {
+        } catch (PersistenceException persistenceException) {
             if(trx != null) {
                 trx.rollback();
             }
@@ -123,7 +124,7 @@ public class EventSLO {
                     source.getId(),
                     eventId,
                     target.getId(),
-                    hibernateException.getMessage());
+                    persistenceException.getMessage());
             return Optional.empty();
         }
     }

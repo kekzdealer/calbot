@@ -1,6 +1,7 @@
 package at.kurumi.user;
 
 import at.kurumi.Database;
+import jakarta.persistence.PersistenceException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
@@ -28,12 +29,12 @@ public class UserSLO {
             session.persist(user);
             trx.commit();
             return Optional.of(user);
-        } catch (HibernateException hibernateException) {
+        } catch (PersistenceException persistenceException) {
             if(trx != null) {
                 trx.rollback();
             }
             LOG.error("Failed to persist new user");
-            LOG.debug("Failed to persist new user: {}, {}", name, discordId);
+            LOG.debug(persistenceException.getMessage());
             return Optional.empty();
         }
     }
@@ -52,12 +53,12 @@ public class UserSLO {
 
             final var query = session.createQuery(criteria);
             return Optional.of(query.getSingleResult());
-        } catch (HibernateException hibernateException) {
+        } catch (PersistenceException persistenceException) {
             if(trx != null) {
                 trx.rollback();
             }
             LOG.error("Failed to query user");
-            LOG.debug("Failed to query user by discordId: {}", discordId);
+            LOG.debug(persistenceException.getMessage());
             return Optional.empty();
         }
     }
@@ -82,12 +83,12 @@ public class UserSLO {
             trx.commit();
 
             return Optional.of(user);
-        } catch (HibernateException hibernateException) {
+        } catch (PersistenceException persistenceException) {
             if(trx != null) {
                 trx.rollback();
             }
             LOG.error("Failed to query user");
-            LOG.debug("Failed to query user by discordId: {}", discordId);
+            LOG.debug(persistenceException.getMessage());
             return Optional.empty();
         }
     }
@@ -111,12 +112,12 @@ public class UserSLO {
             trx.commit();
 
             return true;
-        } catch (HibernateException hibernateException) {
+        } catch (PersistenceException persistenceException) {
             if(trx != null) {
                 trx.rollback();
             }
             LOG.error("Failed to delete user");
-            LOG.debug("Failed to delete user by discordId: {}", discordId);
+            LOG.debug(persistenceException.getMessage());
             return false;
         }
     }

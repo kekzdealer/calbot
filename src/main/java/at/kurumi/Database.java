@@ -1,5 +1,7 @@
 package at.kurumi;
 
+import at.kurumi.calendar.Event;
+import at.kurumi.user.User;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
@@ -19,7 +21,10 @@ public class Database {
 
     public Database() {
         LOG.info("Initializing Hibernate");
-        sessionFactory = new Configuration().configure().buildSessionFactory();
+        sessionFactory = new Configuration().configure("hibernate.cfg.xml")
+                .addAnnotatedClass(User.class)
+                .addAnnotatedClass(Event.class)
+                .buildSessionFactory();
     }
 
     /**
