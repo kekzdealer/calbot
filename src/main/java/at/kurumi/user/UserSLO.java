@@ -7,7 +7,9 @@ import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Transaction;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public class UserSLO {
 
@@ -40,57 +42,14 @@ public class UserSLO {
     }
 
     public Optional<User> getUserByDiscordId(long discordId) {
-        Transaction trx = null;
-        try (final var session = database.openSession()) {
-            trx = session.beginTransaction();
-
-            final var criteriaBuilder = session.getCriteriaBuilder();
-            var criteria = criteriaBuilder.createQuery(User.class);
-
-            final var root = criteria.from(User.class);
-            criteria = criteria.select(root)
-                    .where(criteriaBuilder.equal(root.get("discordId"), discordId));
-
-            final var query = session.createQuery(criteria);
-            return Optional.of(query.getSingleResult());
-        } catch (PersistenceException persistenceException) {
-            if(trx != null) {
-                trx.rollback();
-            }
-            LOG.error("Failed to query user");
-            LOG.debug(persistenceException.getMessage());
-            return Optional.empty();
-        }
+        return database.getSingleResultWhere("discordId", discordId, User.class);
     }
 
     public Optional<User> updateUserNameByDiscordId(long discordId, String username) {
-        Transaction trx = null;
-        try (final var session = database.openSession()) {
-            trx = session.beginTransaction();
-
-            final var criteriaBuilder = session.getCriteriaBuilder();
-            var criteria = criteriaBuilder.createQuery(User.class);
-
-            final var root = criteria.from(User.class);
-            criteria = criteria.select(root)
-                    .where(criteriaBuilder.equal(root.get("discordId"), discordId));
-
-            final var query = session.createQuery(criteria);
-            final var user = query.getSingleResult();
-
-            user.setName(username);
-
-            trx.commit();
-
-            return Optional.of(user);
-        } catch (PersistenceException persistenceException) {
-            if(trx != null) {
-                trx.rollback();
-            }
-            LOG.error("Failed to query user");
-            LOG.debug(persistenceException.getMessage());
-            return Optional.empty();
-        }
+        final List<Consumer<User>> transformations = List.of(
+                u -> u.setName(username)
+        );
+        return database.updateEntityWhere(transformations, "discordId", discordId, User.class);
     }
 
     public boolean deleteUserByDiscordId(long discordId) {

@@ -2,16 +2,17 @@ package at.kurumi;
 
 import at.kurumi.calendar.Event;
 import at.kurumi.user.User;
+import jakarta.persistence.PersistenceException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.query.Query;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.Properties;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 public class Database {
 
@@ -36,4 +37,44 @@ public class Database {
         return sessionFactory.openSession();
     }
 
+    // todo better name
+    private <T> Query<T> getSingleConstraintQuery(String attr, Object equals, Class<T> from, Session session) {
+        final var criteriaBuilder = session.getCriteriaBuilder();
+        var criteria = criteriaBuilder.createQuery(from);
+
+        final var root = criteria.from(from);
+        criteria = criteria.select(root)
+                .where(criteriaBuilder.equal(root.get(attr), equals));
+
+        return session.createQuery(criteria);
+    }
+
+    public <T> Optional<T> getSingleResultWhere(String attr, Object equals, Class<T> from) {
+        try (final var session = openSession()) {
+            final var query = getSingleConstraintQuery(attr, equals, from, session);
+
+            return Optional.of(query.getSingleResult());
+        } catch (PersistenceException persistenceException) {
+            LOG.error("Failed to get result from {} where {} equals {}", from.getTypeName(), attr, equals);
+            LOG.debug(persistenceException.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    public <T> Optional<T> updateEntityWhere(List<Consumer<T>> transformations, String attr, Object equals, Class<T> from) {
+        try (final var session = openSession()) {
+            // Fetch one entity from the database according to a single constraint
+            final var entity = getSingleConstraintQuery(attr, equals, from, session)
+                    .getSingleResult();
+            // Apply all transformations to the persistent entity (all the setter calls)
+            transformations.forEach(consumer -> consumer.accept(entity));
+            // Write it back to the database with an update
+            session.flush();
+            return Optional.of(entity);
+        } catch (PersistenceException persistenceException) {
+            LOG.error("Failed to update entity of type {}", from.getTypeName());
+            LOG.debug(persistenceException.getMessage());
+            return Optional.empty();
+        }
+    }
 }
