@@ -1,10 +1,8 @@
 package at.kurumi.user;
 
 import at.kurumi.Database;
-import jakarta.persistence.PersistenceException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.Transaction;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +22,7 @@ public class UserSLO {
         final var user = new User();
         user.setName(name);
         user.setDiscordId(discordId);
-        return database.createEntity(user) ? Optional.of(user) : Optional.empty();
+        return database.createEntity(user);
     }
 
     public Optional<User> getUserByDiscordId(long discordId) {

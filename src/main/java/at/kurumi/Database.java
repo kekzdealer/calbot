@@ -48,15 +48,15 @@ public class Database {
         return session.createQuery(criteria);
     }
 
-    public boolean createEntity(Object entity) {
+    public <T> Optional<T> createEntity(T entity) {
         try (final var session = openSession()) {
             session.persist(entity);
             session.flush();
-            return true;
+            return Optional.of(entity);
         } catch (PersistenceException persistenceException) {
             LOG.error("Failed to create entity of type {}", entity.getClass().getTypeName());
             LOG.debug(persistenceException.getMessage());
-            return false;
+            return Optional.empty();
         }
     }
 

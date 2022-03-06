@@ -28,11 +28,15 @@ public class EventSLO {
         event.setStart(Timestamp.from(start));
         event.setEnd(Timestamp.from(end));
         event.addUser(creator);
-        return database.createEntity(event) ? Optional.of(event) : Optional.empty();
+        return database.createEntity(event);
     }
 
     public boolean deleteEventById(User participant, int eventId) {
-        return database.deleteEntityWhere("id", eventId, Event.class);
+        final var event  = database.getSingleResultWhere("id", eventId, Event.class);
+
+        return event.map(e -> e.getUsers().contains(participant)
+                        && database.deleteEntityWhere("id", eventId, Event.class))
+                .orElse(false);
     }
 
     /**
