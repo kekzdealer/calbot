@@ -37,7 +37,6 @@ public class Database {
         return sessionFactory.openSession();
     }
 
-    // todo better name
     private <T> Query<T> getSingleConstraintQuery(String attr, Object equals, Class<T> from, Session session) {
         final var criteriaBuilder = session.getCriteriaBuilder();
         var criteria = criteriaBuilder.createQuery(from);
@@ -47,6 +46,18 @@ public class Database {
                 .where(criteriaBuilder.equal(root.get(attr), equals));
 
         return session.createQuery(criteria);
+    }
+
+    public boolean createEntity(Object entity) {
+        try (final var session = openSession()) {
+            session.persist(entity);
+            session.flush();
+            return true;
+        } catch (PersistenceException persistenceException) {
+            LOG.error("Failed to create entity of type {}", entity.getClass().getTypeName());
+            LOG.debug(persistenceException.getMessage());
+            return false;
+        }
     }
 
     public <T> Optional<T> getSingleResultWhere(String attr, Object equals, Class<T> from) {
@@ -66,15 +77,29 @@ public class Database {
             // Fetch one entity from the database according to a single constraint
             final var entity = getSingleConstraintQuery(attr, equals, from, session)
                     .getSingleResult();
-            // Apply all transformations to the persistent entity (all the setter calls)
+            // Execute prepared setter calls on the persistent entity
             transformations.forEach(consumer -> consumer.accept(entity));
-            // Write it back to the database with an update
+            // Flush the session to execute an update
             session.flush();
             return Optional.of(entity);
         } catch (PersistenceException persistenceException) {
             LOG.error("Failed to update entity of type {}", from.getTypeName());
             LOG.debug(persistenceException.getMessage());
             return Optional.empty();
+        }
+    }
+
+    public <T> boolean deleteEntityWhere(String attr, Object equals, Class<T> from) {
+        try (final var session = openSession()) {
+            final var query = getSingleConstraintQuery(attr, equals, from, session);
+
+            session.remove(query.getSingleResult());
+            session.flush();
+            return true;
+        } catch (PersistenceException persistenceException) {
+            LOG.error("Failed to delete from {} where {} equals {}", from.getTypeName(), attr, equals);
+            LOG.debug(persistenceException.getMessage());
+            return false;
         }
     }
 }
