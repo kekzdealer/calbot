@@ -36,6 +36,7 @@ public class BotStart {
 
         registerCommand(client, new CalendarProgram(eventSLO, userSLO));
         registerCommand(client, new UserProgram(userSLO));
+        registerCommand(client, new ShutdownProgram());
 
         client.on(ApplicationCommandInteractionEvent.class, this::delegateToProgram).subscribe();
         client.onDisconnect().block();
