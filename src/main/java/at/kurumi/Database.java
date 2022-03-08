@@ -3,7 +3,6 @@ package at.kurumi;
 import at.kurumi.calendar.Event;
 import at.kurumi.user.User;
 import jakarta.persistence.PersistenceException;
-import jakarta.transaction.Transactional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
@@ -80,13 +79,14 @@ public class Database {
     public <T> Optional<T> updateEntityWhere(List<Consumer<T>> transformations, String attr, Object equals,
                                              Class<T> from) {
         try (final var session = openSession()) {
+            final var transaction = session.beginTransaction();
             // Fetch one entity from the database according to a single constraint
             final var entity = getSingleConstraintQuery(attr, equals, from, session)
                     .getSingleResult();
             // Execute prepared setter calls on the persistent entity
             transformations.forEach(consumer -> consumer.accept(entity));
             // Flush the session to execute an update
-            session.flush();
+            transaction.commit();
             return Optional.of(entity);
         } catch (PersistenceException persistenceException) {
             LOG.error("Failed to update entity of type {}", from.getTypeName());
@@ -97,10 +97,11 @@ public class Database {
 
     public <T> boolean deleteEntityWhere(String attr, Object equals, Class<T> from) {
         try (final var session = openSession()) {
+            final var transaction = session.beginTransaction();
             final var query = getSingleConstraintQuery(attr, equals, from, session);
 
             session.remove(query.getSingleResult());
-            session.flush();
+            transaction.commit();
             return true;
         } catch (PersistenceException persistenceException) {
             LOG.error("Failed to delete from {} where {} equals {}", from.getTypeName(), attr, equals);
