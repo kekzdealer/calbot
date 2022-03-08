@@ -32,7 +32,8 @@ public class NicknameOperation extends Operation {
 
         return user.map(u -> {
             LOG.debug("Updated a nickname to {}", prefName);
-            return e.reply(super.replyBuilder().content(String.format("Okay, I will call you %s from now on", prefName)).build());
+            return e.reply(super.replyBuilder().content(String.format("Okay, I will call you %s from now on", prefName))
+                    .build());
         }).orElseGet(() -> {
             LOG.error("Failed to update user with discordId {} nickname to {}", discordId, prefName);
             return e.reply(super.replyBuilder().content("Sorry, I could not update your nickname").build());

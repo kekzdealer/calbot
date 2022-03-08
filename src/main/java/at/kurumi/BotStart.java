@@ -8,6 +8,7 @@ import at.kurumi.user.UserSLO;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.interaction.ApplicationCommandInteractionEvent;
+import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import reactor.core.publisher.Mono;
@@ -24,9 +25,20 @@ public class BotStart {
     private final Map<String, Command> commands = new HashMap<>();
 
     public GatewayDiscordClient login(String token) {
-        return DiscordClientBuilder.create(token).build()
+        final var gatewayDiscordClient = DiscordClientBuilder.create(token).build()
                 .login()
+                .doOnError(e -> LOG.error("Failed to authenticate with Discord"))
+                .doOnSuccess(e -> LOG.info("Connected to Discord"))
                 .block();
+
+        if(gatewayDiscordClient == null) {
+            throw new RuntimeException("GatewayDiscordClient is null");
+        }
+
+        gatewayDiscordClient.on(ReadyEvent.class).doOnNext(e ->
+                LOG.info("Logged in as {}", e.getSelf().getUsername()));
+
+        return gatewayDiscordClient;
     }
 
     public void setup(GatewayDiscordClient client) {
@@ -38,7 +50,8 @@ public class BotStart {
         registerCommand(client, new UserProgram(userSLO));
         registerCommand(client, new ShutdownProgram());
 
-        client.on(ApplicationCommandInteractionEvent.class, this::delegateToProgram).subscribe();
+        client.on(ApplicationCommandInteractionEvent.class, this::delegateToProgram)
+                .subscribe();
         client.onDisconnect().block();
     }
 

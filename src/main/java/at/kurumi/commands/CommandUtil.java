@@ -34,7 +34,7 @@ public class CommandUtil {
             throws DateTimeParseException {
         final var dateString = getCommandValue(e, name);
         // 1) create the parsing pattern
-        final var formatter = DateTimeFormatter.ofPattern("dd:MM HH:mm");
+        final var formatter = DateTimeFormatter.ofPattern("dd.MM HH:mm");
         // 2) java.time.Instant representation of the date-time from the user's time zone
         final var localInstant = Instant.from(formatter.parse(dateString));
         // 3) User local Instant is combined with time zone information
