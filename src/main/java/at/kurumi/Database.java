@@ -3,6 +3,7 @@ package at.kurumi;
 import at.kurumi.calendar.Event;
 import at.kurumi.user.User;
 import jakarta.persistence.PersistenceException;
+import jakarta.transaction.Transactional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
@@ -14,6 +15,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+/**
+ * Insert ops (and therefore probably update as well need to be within transactions)
+ */
 public class Database {
 
     private static final Logger LOG = LogManager.getLogger();
@@ -50,8 +54,9 @@ public class Database {
 
     public <T> Optional<T> createEntity(T entity) {
         try (final var session = openSession()) {
+            final var transaction = session.beginTransaction();
             session.persist(entity);
-            session.flush();
+            transaction.commit();
             return Optional.of(entity);
         } catch (PersistenceException persistenceException) {
             LOG.error("Failed to create entity of type {}", entity.getClass().getTypeName());
@@ -72,7 +77,8 @@ public class Database {
         }
     }
 
-    public <T> Optional<T> updateEntityWhere(List<Consumer<T>> transformations, String attr, Object equals, Class<T> from) {
+    public <T> Optional<T> updateEntityWhere(List<Consumer<T>> transformations, String attr, Object equals,
+                                             Class<T> from) {
         try (final var session = openSession()) {
             // Fetch one entity from the database according to a single constraint
             final var entity = getSingleConstraintQuery(attr, equals, from, session)
