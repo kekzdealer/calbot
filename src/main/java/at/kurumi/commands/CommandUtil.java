@@ -9,6 +9,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Optional;
 
 public class CommandUtil {
 
@@ -16,33 +17,23 @@ public class CommandUtil {
 
     }
 
-    public static String getCommandValue(ChatInputInteractionEvent e, String name) {
+    public static Optional<String> getCommandValue(ChatInputInteractionEvent e, String name) {
         return e.getOption(name)
                 .flatMap(ApplicationCommandInteractionOption::getValue)
-                .map(ApplicationCommandInteractionOptionValue::asString)
-                .orElse("");
+                .map(ApplicationCommandInteractionOptionValue::asString);
     }
 
-    public static String getCommandValue(ChatInputInteractionEvent e, String name, String alt) {
-        return e.getOption(name)
-                .flatMap(ApplicationCommandInteractionOption::getValue)
-                .map(ApplicationCommandInteractionOptionValue::asString)
-                .orElse(alt);
-    }
-
-    public static Instant getCommandValueAsUTCInstant(ChatInputInteractionEvent e, String name)
+    public static Optional<Instant> getCommandValueAsUTCInstant(ChatInputInteractionEvent e, String name)
             throws DateTimeParseException {
-        final var dateString = getCommandValue(e, name);
         // 1) create the parsing pattern
         final var formatter = DateTimeFormatter.ofPattern("dd.MM HH:mm");
-        // 2) java.time.Instant representation of the date-time from the user's time zone
-        final var localInstant = Instant.from(formatter.parse(dateString));
-        // 3) User local Instant is combined with time zone information
-        final var zonedDateTime = ZonedDateTime
-                // TODO get the zone data for the requesting user from the db, UTC default
-                .ofInstant(localInstant, ZoneId.systemDefault());
-        // 4) Convert back to Instant, but this time normalized to UTC
-        return zonedDateTime.toInstant();
+        return getCommandValue(e, name).map(formatter::parse)
+                // 2) java.time.Instant representation of the date-time from the user's time zone
+                .map(Instant::from)
+                // 3) User local Instant is combined with time zone information
+                .map(instant -> ZonedDateTime.ofInstant(instant, ZoneId.systemDefault()))
+                // 4) Convert back to Instant, but this time normalized to UTC
+                .map(ZonedDateTime::toInstant);
     }
 
     public static long extractDiscordUserId(ChatInputInteractionEvent e) {

@@ -6,6 +6,8 @@ import at.kurumi.user.UserSLO;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import reactor.core.publisher.Mono;
 
+import java.util.NoSuchElementException;
+
 /**
  * Change how the bot refers to you. Default will be the discord name you had during the "hello" operation.
  */
@@ -26,17 +28,14 @@ public class NicknameOperation extends Operation {
     public Mono<Void> handle(ChatInputInteractionEvent e) {
         final var discordId = CommandUtil.extractDiscordUserId(e);
 
-        final var prefName = CommandUtil.getCommandValue(e, "argument0");
+        try {
+            final var prefName = CommandUtil.getCommandValue(e, "argument0").orElseThrow();
 
-        final var user = userSLO.updateUserNameByDiscordId(discordId, prefName);
-
-        return user.map(u -> {
-            LOG.debug("Updated a nickname to {}", prefName);
-            return e.reply(super.replyBuilder().content(String.format("Okay, I will call you %s from now on", prefName))
-                    .build());
-        }).orElseGet(() -> {
-            LOG.error("Failed to update user with discordId {} nickname to {}", discordId, prefName);
-            return e.reply(super.replyBuilder().content("Sorry, I could not update your nickname").build());
-        });
+            return userSLO.updateUserNameByDiscordId(discordId, prefName)
+                    .map(u -> super.simpleReply(e, String.format("Okay, I will call you %s from now on", prefName)))
+                    .orElseGet(() -> super.simpleReply(e, "Sorry, I wasn't able to update your nickname"));
+        } catch (NoSuchElementException noSuchElementException) {
+            return super.missingArgumentReply(e, "Please provide a new nickname.");
+        }
     }
 }

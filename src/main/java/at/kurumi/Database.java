@@ -2,7 +2,9 @@ package at.kurumi;
 
 import at.kurumi.calendar.Event;
 import at.kurumi.user.User;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceException;
+import jakarta.persistence.RollbackException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
@@ -19,7 +21,7 @@ import java.util.function.Consumer;
  */
 public class Database {
 
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger("Database");
 
     private final SessionFactory sessionFactory;
 
@@ -57,6 +59,10 @@ public class Database {
             session.persist(entity);
             transaction.commit();
             return Optional.of(entity);
+        } catch (RollbackException rollbackException) {
+            LOG.error("Commit failure: Could not commit new entity of type {}", entity.getClass().getTypeName());
+            LOG.debug(rollbackException.getMessage());
+            return Optional.empty();
         } catch (PersistenceException persistenceException) {
             LOG.error("Failed to create entity of type {}", entity.getClass().getTypeName());
             LOG.debug(persistenceException.getMessage());
@@ -69,6 +75,10 @@ public class Database {
             final var query = getSingleConstraintQuery(attr, equals, from, session);
 
             return Optional.of(query.getSingleResult());
+        } catch (NoResultException noResultException) {
+            LOG.warn("No single result of type {} available for {}", from.getTypeName(), equals.toString());
+            LOG.debug(noResultException.getMessage());
+            return Optional.empty();
         } catch (PersistenceException persistenceException) {
             LOG.error("Failed to get result from {} where {} equals {}", from.getTypeName(), attr, equals);
             LOG.debug(persistenceException.getMessage());
@@ -88,6 +98,10 @@ public class Database {
             // Flush the session to execute an update
             transaction.commit();
             return Optional.of(entity);
+        } catch (RollbackException rollbackException) {
+            LOG.error("Commit failure: Could not commit updated entity of type {}", from.getTypeName());
+            LOG.debug(rollbackException.getMessage());
+            return Optional.empty();
         } catch (PersistenceException persistenceException) {
             LOG.error("Failed to update entity of type {}", from.getTypeName());
             LOG.debug(persistenceException.getMessage());
@@ -103,6 +117,10 @@ public class Database {
             session.remove(query.getSingleResult());
             transaction.commit();
             return true;
+        } catch (NoResultException noResultException) {
+            LOG.warn("No single result of type {} available for {}", from.getTypeName(), equals.toString());
+            LOG.debug(noResultException.getMessage());
+            return false;
         } catch (PersistenceException persistenceException) {
             LOG.error("Failed to delete from {} where {} equals {}", from.getTypeName(), attr, equals);
             LOG.debug(persistenceException.getMessage());

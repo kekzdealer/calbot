@@ -11,7 +11,7 @@ import java.util.Set;
 public class User {
 
     @Column(name = "id") @Id @GeneratedValue    private int id;                 // Table PK
-    @Column(name = "discordId")                 private long discordId;         // Discord user snowflake
+    @Column(name = "discordId", unique = true)                 private long discordId;         // Discord user snowflake
     @Column(name = "name")                      private String name;            // Discord username or nickname if set
 
     @ManyToMany(mappedBy="users")

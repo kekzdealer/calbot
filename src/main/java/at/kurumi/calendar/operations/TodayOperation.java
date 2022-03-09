@@ -52,10 +52,10 @@ public class TodayOperation extends Operation {
                     event.getTitle(),
                     event.getStart().getTime(),
                     event.getEnd().getTime())));
-            return e.reply(super.replyBuilder().content(reply.toString()).build());
+            return super.simpleReply(e, reply.toString());
         }).orElseGet(() -> {
             LOG.error("Failed to retrieve user data for user with discordId {}", discordId);
-            return e.reply(super.replyBuilder().content("Sorry, I could not retrieve your user data.").build());
+            return super.simpleReply(e, "Sorry, I wasn't able to retrieve your user data.");
         });
     }
 }

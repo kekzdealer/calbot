@@ -27,11 +27,9 @@ public class DeleteOperation extends Operation {
         final var discordId = CommandUtil.extractDiscordUserId(e);
 
         if (userSLO.deleteUserByDiscordId(discordId)) {
-            LOG.debug("Deleted user with discordId {}", discordId);
-            return e.reply(super.replyBuilder().content("Profile deletion request fulfilled. Goodbye.").build());
+            return super.simpleReply(e, "Profile deleted. Goodbye.");
         } else {
-            LOG.error("Failed to delete user with discordId {}", discordId);
-            return e.reply(super.replyBuilder().content("Sorry, I could not delete your profile.").build());
+            return super.simpleReply(e, "Sorry, I wasn't able to delete your profile.");
         }
     }
 }

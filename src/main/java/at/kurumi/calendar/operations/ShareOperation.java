@@ -9,6 +9,8 @@ import at.kurumi.user.UserSLO;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import reactor.core.publisher.Mono;
 
+import java.util.NoSuchElementException;
+
 /**
  * Share an event with another user.
  */
@@ -33,33 +35,34 @@ public class ShareOperation extends Operation {
         final var discordId = CommandUtil.extractDiscordUserId(e);
         final var user = userSLO.getUserByDiscordId(discordId);
         if(!user.isPresent()) {
-            LOG.error("Failed to retrieve user data for user with discordId {}", discordId);
-            return e.reply(super.replyBuilder().content("Sorry, I could not retrieve your user data.").build());
+            return super.simpleReply(e, "Sorry, I wasn't able to retrieve your user data.");
         }
-        // recipient user discord id input parameter in String form
-        final var recipientDiscordIdStr = CommandUtil.getCommandValue(e, "argument0");
-        if(recipientDiscordIdStr.isEmpty()) {
-            return e.reply(super.replyBuilder().content("Missing recipient user discord id!").build());
-        }
-        // Parse to long
+
         long recipientDiscordId;
         try {
-            recipientDiscordId = Long.parseLong(recipientDiscordIdStr);
+            recipientDiscordId = CommandUtil.getCommandValue(e, "argument0")
+                    .map(Long::parseLong)
+                    .orElseThrow();
         } catch (NumberFormatException numberFormatException) {
-            return e.reply(super.replyBuilder().content("Invalid recipient format: Only integer numbers allowed").build());
+            return super.invalidArgumentReply(e, "Only integer numbers allowed");
+        } catch (NoSuchElementException noSuchElementException) {
+            return super.missingArgumentReply(e, "Please specify the recipient id");
         }
         // Get recipient user
         final var recipientUser = userSLO.getUserByDiscordId(recipientDiscordId);
         if(!recipientUser.isPresent()) {
-            LOG.error("Failed to retrieve user data for user with discordId {}", discordId);
-            return e.reply(super.replyBuilder().content("Sorry, I could not retrieve the recipients user data.").build());
+            return super.simpleReply(e, "I wasn't able to retrieve the recipients user data.");
         }
         // Parse TARGET input parameter to int
         int target;
         try {
-            target = Integer.parseInt(CommandUtil.getCommandValue(e, Command.TARGET_OPTION_DATA.name()));
+            target = CommandUtil.getCommandValue(e, Command.TARGET_OPTION_DATA.name())
+                    .map(Integer::parseInt)
+                    .orElseThrow();
         } catch (NumberFormatException numberFormatException) {
-            return e.reply(super.replyBuilder().content("Invalid target format: Only integer numbers allowed").build());
+            return super.invalidArgumentReply(e, "Only integer numbers allowed");
+        } catch (NoSuchElementException noSuchElementException) {
+            return super.missingArgumentReply(e, "Please specify a target");
         }
 
         return shareEvent(e, user.get(), target, recipientUser.get());
@@ -68,14 +71,10 @@ public class ShareOperation extends Operation {
     private Mono<Void> shareEvent(ChatInputInteractionEvent e, User user, int eventId, User target) {
         final var event = eventSLO.shareEvent(user, eventId, target);
 
-        return event.map(event1 -> {
-            LOG.debug("Created event \"{}\", from {} to {}",
-                    event1.getTitle(), event1.getStart().getTime(), event1.getEnd().getTime());
-            return e.reply(super.replyBuilder().content(String.format("Shared event \"%s\", from <t:%d> to <t:%d> with",
-                    event1.getTitle(), event1.getStart().getTime(), event1.getEnd().getTime())).build());
-        }).orElseGet(() -> {
-            LOG.debug("Failed to share event with id {}", eventId);
-            return e.reply(super.replyBuilder().content("Sorry, I could not share the event").build());
-        });
+        return event.map(event1 -> super.simpleReply(e, String.format("Shared event \"%s\", from <t:%d> to <t:%d> with",
+                event1.getTitle(),
+                event1.getStart().getTime(),
+                event1.getEnd().getTime())))
+                .orElseGet(() -> super.simpleReply(e, "Sorry, I wasn't able to share the event"));
     }
 }

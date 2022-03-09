@@ -29,12 +29,8 @@ public class HelloOperation extends Operation {
 
         final var user = userSLO.createUser(username, discordId);
 
-        return user.map(u -> {
-            LOG.debug("Created user {} with id {}", username, discordId);
-            return e.reply(super.replyBuilder().content("Welcome " + username).build());
-        }).orElseGet(() -> {
-            LOG.error("Failed to create user {} with discordId {}", username, discordId);
-            return e.reply(super.replyBuilder().content("Sorry, I could not create your user profile.").build());
-        });
+        return user.map(u -> super.simpleReply(e, "Welcome " + username))
+                .orElseGet(() -> super.simpleReply(e,
+                        "Sorry, I wasn't able to create a profile for your discord id."));
     }
 }
