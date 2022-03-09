@@ -31,6 +31,7 @@ public class Database {
                 .addAnnotatedClass(User.class)
                 .addAnnotatedClass(Event.class)
                 .buildSessionFactory();
+        LOG.info("Initialized Hibernate");
     }
 
     /**

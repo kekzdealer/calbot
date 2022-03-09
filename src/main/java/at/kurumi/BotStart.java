@@ -35,8 +35,9 @@ public class BotStart {
             throw new RuntimeException("GatewayDiscordClient is null");
         }
 
-        gatewayDiscordClient.on(ReadyEvent.class).doOnNext(e ->
-                LOG.info("Logged in as {}", e.getSelf().getUsername()));
+        gatewayDiscordClient.on(ReadyEvent.class)
+                .doOnNext(e -> LOG.info("Logged in as {}", e.getSelf().getUsername()))
+                .subscribe();
 
         return gatewayDiscordClient;
     }

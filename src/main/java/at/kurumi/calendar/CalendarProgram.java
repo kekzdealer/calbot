@@ -59,7 +59,7 @@ public class CalendarProgram extends Command {
                         false
                 ),
                 Command.optionData(
-                        "argument3",
+                        "argument2",
                         "Optional third argument",
                         ApplicationCommandOption.Type.STRING.getValue(),
                         false
@@ -71,8 +71,9 @@ public class CalendarProgram extends Command {
         if(e instanceof ChatInputInteractionEvent) {
             final var e_ = (ChatInputInteractionEvent) e;
 
-            final var opName = CommandUtil.getCommandValue(e_, Command.OPERATION_OPTION_DATA.name());
-            return operations.get(opName).handle(e_);
+            return CommandUtil.getCommandValue(e_, Command.OPERATION_OPTION_DATA.name())
+                    .map(opName -> operations.get(opName).handle(e_))
+                    .orElseGet(() -> e.reply("Operation type is either missing or unsupported."));
         } else {
             final var messageSpec = InteractionApplicationCommandCallbackSpec.builder();
             messageSpec.content("Input event type unsupported by this program");

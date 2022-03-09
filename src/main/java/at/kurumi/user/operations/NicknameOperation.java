@@ -32,7 +32,7 @@ public class NicknameOperation extends Operation {
             final var prefName = CommandUtil.getCommandValue(e, "argument0").orElseThrow();
 
             return userSLO.updateUserNameByDiscordId(discordId, prefName)
-                    .map(u -> super.simpleReply(e, String.format("Okay, I will call you %s from now on", prefName)))
+                    .map(u -> super.simpleReply(e, String.format("Okay, I'll' call you %s from now on", prefName)))
                     .orElseGet(() -> super.simpleReply(e, "Sorry, I wasn't able to update your nickname"));
         } catch (NoSuchElementException noSuchElementException) {
             return super.missingArgumentReply(e, "Please provide a new nickname.");

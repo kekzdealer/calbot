@@ -62,8 +62,9 @@ public class UserProgram extends Command {
         if(e instanceof ChatInputInteractionEvent) {
             final var e_ = (ChatInputInteractionEvent) e;
 
-            final var opName = CommandUtil.getCommandValue(e_, "operation");
-            return operations.get(opName).handle(e_);
+            return CommandUtil.getCommandValue(e_, "operation")
+                    .map(opName -> operations.get(opName).handle(e_))
+                    .orElseGet(() -> e.reply("Operation type is either missing or unsupported."));
         } else {
             final var messageSpec = InteractionApplicationCommandCallbackSpec.builder();
             messageSpec.content("Input event type unsupported by this program");
