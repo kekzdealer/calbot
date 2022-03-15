@@ -1,14 +1,16 @@
 package at.kurumi;
 
-import at.kurumi.calendar.CalendarProgram;
+import at.kurumi.calendar.CalendarCommand;
 import at.kurumi.commands.Command;
-import at.kurumi.register.RegisterProgram;
-import at.kurumi.user.UserProgram;
-import at.kurumi.work.WorkProgram;
+import at.kurumi.commands.CommandUtil;
+import at.kurumi.register.RegisterCommand;
+import at.kurumi.user.UserCommand;
+import at.kurumi.work.WorkCommand;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.interaction.ApplicationCommandInteractionEvent;
 import discord4j.core.event.domain.interaction.ChatInputAutoCompleteEvent;
+import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -34,11 +36,11 @@ public class BotStart {
     This list might grow very long in the future, so I'm using field injection instead of constructor injection.
     I don't want a constructor with more than or so parameters.
      */
-    @Inject private CalendarProgram calendarProgram;
-    @Inject private UserProgram userProgram;
-    @Inject private ShutdownProgram shutdownProgram;
-    @Inject private RegisterProgram registerProgram;
-    @Inject private WorkProgram workProgram;
+    @Inject private CalendarCommand calendarCommand;
+    @Inject private UserCommand userCommand;
+    @Inject private ShutdownCommand shutdownCommand;
+    @Inject private RegisterCommand registerCommand;
+    @Inject private WorkCommand workCommand;
 
     private GatewayDiscordClient discordClient;
 
@@ -61,11 +63,11 @@ public class BotStart {
         discordClient.on(ChatInputAutoCompleteEvent.class, this::delegateAutoComplete)
                 .subscribe();
 
-        registerCommand(calendarProgram );
-        registerCommand(userProgram);
-        registerCommand(shutdownProgram);
-        registerCommand(registerProgram);
-        registerCommand(workProgram);
+        registerCommand(calendarCommand);
+        registerCommand(userCommand);
+        registerCommand(shutdownCommand);
+        registerCommand(registerCommand);
+        registerCommand(workCommand);
     }
 
     @PreDestroy
@@ -75,7 +77,7 @@ public class BotStart {
 
     private Mono<Void> delegateToProgram(ApplicationCommandInteractionEvent event) {
         return Optional.ofNullable(commands.get(event.getCommandName()))
-                .map(command -> command.handle(event))
+                .map(command -> command.handle((ChatInputInteractionEvent) event))
                 .orElseThrow(IllegalStateException::new);
     }
 
@@ -86,7 +88,7 @@ public class BotStart {
     }
 
     private void registerCommand(Command command) {
-        Command.guildCommand(discordClient,
+        CommandUtil.guildCommand(discordClient,
                 KURIS_LAB_GUILD_ID,
                 command.getName(),
                 command.getDescription(),

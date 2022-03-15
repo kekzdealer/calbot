@@ -7,23 +7,32 @@ import at.kurumi.user.operations.DeleteOperation;
 import at.kurumi.user.operations.HelloOperation;
 import at.kurumi.user.operations.ListOperation;
 import at.kurumi.user.operations.NicknameOperation;
-import discord4j.core.event.domain.interaction.ApplicationCommandInteractionEvent;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandOption;
-import discord4j.core.spec.InteractionApplicationCommandCallbackSpec;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
+import jakarta.annotation.PostConstruct;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class UserProgram extends Command {
+@Stateless
+public class UserCommand extends Command {
 
     private final Map<String, Operation> operations = new HashMap<>();
 
-    // to be injected
-    public UserProgram(UserSLO userSLO) {
+    private final UserSLO userSLO;
+
+    @Inject
+    public UserCommand(UserSLO userSLO) {
+        this.userSLO = userSLO;
+    }
+
+    @PostConstruct
+    public void init() {
         Operation.insertIntoMap(operations, new HelloOperation(userSLO));
         Operation.insertIntoMap(operations, new ListOperation(userSLO));
         Operation.insertIntoMap(operations, new NicknameOperation(userSLO));
@@ -43,13 +52,13 @@ public class UserProgram extends Command {
     @Override
     public List<ApplicationCommandOptionData> getOptions() {
         return List.of(
-                Command.optionData(
+                CommandUtil.optionData(
                         "operation",
                         "What operation to execute",
                         ApplicationCommandOption.Type.STRING.getValue(),
                         true
                 ),
-                Command.optionData(
+                CommandUtil.optionData(
                         "argument0",
                         "Optional first argument",
                         ApplicationCommandOption.Type.STRING.getValue(),
@@ -58,18 +67,10 @@ public class UserProgram extends Command {
     }
 
     @Override
-    public Mono<Void> handle(ApplicationCommandInteractionEvent e) {
-        if(e instanceof ChatInputInteractionEvent) {
-            final var e_ = (ChatInputInteractionEvent) e;
-
-            return CommandUtil.getCommandValue(e_, "operation")
-                    .map(opName -> operations.get(opName).handle(e_))
-                    .orElseGet(() -> e.reply("Operation type is either missing or unsupported."));
-        } else {
-            final var messageSpec = InteractionApplicationCommandCallbackSpec.builder();
-            messageSpec.content("Input event type unsupported by this program");
-            return e.reply(messageSpec.build());
-        }
+    public Mono<Void> handle(ChatInputInteractionEvent e) {
+        return CommandUtil.getCommandValue(e, "operation")
+                .map(opName -> operations.get(opName).handle(e))
+                .orElseGet(() -> e.reply("Operation type is either missing or unsupported."));
     }
 
 }

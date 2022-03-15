@@ -2,6 +2,8 @@ package at.kurumi.calendar;
 
 import at.kurumi.Database;
 import at.kurumi.user.User;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -12,12 +14,14 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+@Stateless
 public class EventSLO {
 
     private static final Logger LOG = LogManager.getLogger();
 
     private final Database database;
 
+    @Inject
     public EventSLO(Database database) {
         this.database = database;
     }

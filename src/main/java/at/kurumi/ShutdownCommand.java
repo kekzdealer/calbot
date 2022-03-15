@@ -1,9 +1,10 @@
 package at.kurumi;
 
 import at.kurumi.commands.Command;
-import discord4j.core.event.domain.interaction.ApplicationCommandInteractionEvent;
 import discord4j.core.event.domain.interaction.ChatInputAutoCompleteEvent;
+import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
+import jakarta.ejb.Stateless;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
@@ -12,7 +13,8 @@ import java.util.List;
 /**
  * Terminates the Discord gateway connection through a logout event.
  */
-public class ShutdownProgram extends Command {
+@Stateless
+public class ShutdownCommand extends Command {
 
     @Override
     public String getName() {
@@ -30,7 +32,7 @@ public class ShutdownProgram extends Command {
     }
 
     @Override
-    public Mono<Void> handle(ApplicationCommandInteractionEvent e) {
+    public Mono<Void> handle(ChatInputInteractionEvent e) {
         LOG.info("Shutting down");
         return e.getClient().logout();
     }

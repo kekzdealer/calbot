@@ -1,0 +1,1 @@
+java -jar payara-micro*.jar --deploy ./target/*.war

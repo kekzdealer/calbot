@@ -2,6 +2,8 @@ package at.kurumi;
 
 import at.kurumi.calendar.Event;
 import at.kurumi.user.User;
+import jakarta.ejb.Singleton;
+import jakarta.ejb.Stateless;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.RollbackException;
@@ -19,6 +21,7 @@ import java.util.function.Consumer;
 /**
  * Insert ops (and therefore probably update as well need to be within transactions)
  */
+@Stateless
 public class Database {
 
     private static final Logger LOG = LogManager.getLogger("Database");
