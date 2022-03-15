@@ -9,15 +9,18 @@ import at.kurumi.commands.CommandUtil;
 import at.kurumi.commands.Operation;
 import at.kurumi.user.UserSLO;
 import discord4j.core.event.domain.interaction.ApplicationCommandInteractionEvent;
+import discord4j.core.event.domain.interaction.ChatInputAutoCompleteEvent;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandOption;
 import discord4j.core.spec.InteractionApplicationCommandCallbackSpec;
+import discord4j.discordjson.json.ApplicationCommandOptionChoiceData;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class CalendarProgram extends Command {
 
@@ -81,4 +84,17 @@ public class CalendarProgram extends Command {
         }
     }
 
+    @Override
+    public Mono<Void> handleAutoComplete(ChatInputAutoCompleteEvent e) {
+        if(e.getFocusedOption().getName().equals("operation")) {
+            return e.respondWithSuggestions(operations.keySet().stream()
+                    .map(opName -> ApplicationCommandOptionChoiceData.builder()
+                            .name(opName)
+                            .value(opName)
+                            .build())
+                    .collect(Collectors.toList()));
+        } else {
+            return Mono.empty();
+        }
+    }
 }

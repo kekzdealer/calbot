@@ -2,8 +2,8 @@ package at.kurumi.commands;
 
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.interaction.ApplicationCommandInteractionEvent;
+import discord4j.core.event.domain.interaction.ChatInputAutoCompleteEvent;
 import discord4j.core.object.command.ApplicationCommandOption;
-import discord4j.core.spec.InteractionApplicationCommandCallbackSpec;
 import discord4j.discordjson.json.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -53,9 +53,17 @@ public abstract class Command {
      * Take care of an event and respond.
      *
      * @param e an event to respond to
-     * @return the reply Mono
+     * @return empty Mono after a reply
      */
     public abstract Mono<Void> handle(ApplicationCommandInteractionEvent e);
+
+    /**
+     * Deliver autocomplete suggestions
+     *
+     * @param e and event to respond to
+     * @return empty Mono after a reply
+     */
+    public abstract Mono<Void> handleAutoComplete(ChatInputAutoCompleteEvent e);
 
     /**
      * Create a global scoped command. Can be used everywhere. Global commands have a TTL of up to 1 hour so may be

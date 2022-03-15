@@ -2,6 +2,7 @@ package at.kurumi;
 
 import at.kurumi.commands.Command;
 import discord4j.core.event.domain.interaction.ApplicationCommandInteractionEvent;
+import discord4j.core.event.domain.interaction.ChatInputAutoCompleteEvent;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import reactor.core.publisher.Mono;
 
@@ -32,5 +33,10 @@ public class ShutdownProgram extends Command {
     public Mono<Void> handle(ApplicationCommandInteractionEvent e) {
         LOG.info("Shutting down");
         return e.getClient().logout();
+    }
+
+    @Override
+    public Mono<Void> handleAutoComplete(ChatInputAutoCompleteEvent e) {
+        return Mono.empty();
     }
 }

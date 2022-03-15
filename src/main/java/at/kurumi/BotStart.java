@@ -1,13 +1,17 @@
 package at.kurumi;
 
 import at.kurumi.calendar.CalendarProgram;
+import at.kurumi.calendar.Clock;
 import at.kurumi.calendar.EventSLO;
 import at.kurumi.commands.Command;
+import at.kurumi.register.RegisterProgram;
 import at.kurumi.user.UserProgram;
 import at.kurumi.user.UserSLO;
+import at.kurumi.work.WorkProgram;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.interaction.ApplicationCommandInteractionEvent;
+import discord4j.core.event.domain.interaction.ChatInputAutoCompleteEvent;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,7 +35,7 @@ public class BotStart {
                 .doOnSuccess(e -> LOG.info("Connected to Discord"))
                 .block();
 
-        if(gatewayDiscordClient == null) {
+        if (gatewayDiscordClient == null) {
             throw new RuntimeException("GatewayDiscordClient is null");
         }
 
@@ -47,11 +51,17 @@ public class BotStart {
         final var userSLO = new UserSLO(database);
         final var eventSLO = new EventSLO(database);
 
+        final var clock = new Clock();
+
         registerCommand(client, new CalendarProgram(eventSLO, userSLO));
         registerCommand(client, new UserProgram(userSLO));
         registerCommand(client, new ShutdownProgram());
+        registerCommand(client, new RegisterProgram(userSLO));
+        registerCommand(client, new WorkProgram(clock));
 
         client.on(ApplicationCommandInteractionEvent.class, this::delegateToProgram)
+                .subscribe();
+        client.on(ChatInputAutoCompleteEvent.class, this::delegateAutoComplete)
                 .subscribe();
         client.onDisconnect().block();
     }
@@ -59,7 +69,13 @@ public class BotStart {
     private Mono<Void> delegateToProgram(ApplicationCommandInteractionEvent event) {
         return Optional.ofNullable(commands.get(event.getCommandName()))
                 .map(command -> command.handle(event))
-                .orElseGet(() -> event.reply("Unknown command"));
+                .orElseThrow(IllegalStateException::new);
+    }
+
+    private Mono<Void> delegateAutoComplete(ChatInputAutoCompleteEvent event) {
+        return Optional.ofNullable(commands.get(event.getCommandName()))
+                .map(command -> command.handleAutoComplete(event))
+                .orElseThrow(IllegalStateException::new);
     }
 
     private void registerCommand(GatewayDiscordClient client, Command command) {
