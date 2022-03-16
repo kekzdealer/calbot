@@ -2,46 +2,39 @@ package at.kurumi.user;
 
 import at.kurumi.commands.Command;
 import at.kurumi.commands.CommandUtil;
-import at.kurumi.commands.Operation;
-import at.kurumi.user.operations.DeleteOperation;
-import at.kurumi.user.operations.HelloOperation;
-import at.kurumi.user.operations.ListOperation;
-import at.kurumi.user.operations.NicknameOperation;
+import at.kurumi.user.sub.DeleteCommand;
+import at.kurumi.user.sub.NicknameCommand;
+import at.kurumi.user.sub.ShowCommand;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
-import discord4j.core.object.command.ApplicationCommandOption;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 import reactor.core.publisher.Mono;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 @Stateless
 public class UserCommand extends Command {
 
-    private final Map<String, Operation> operations = new HashMap<>();
+    private final List<Command> operations = new ArrayList<>();
 
-    private final UserSLO userSLO;
-
-    @Inject
-    public UserCommand(UserSLO userSLO) {
-        this.userSLO = userSLO;
-    }
+    @Inject private DeleteCommand deleteCommand;
+    @Inject private NicknameCommand nicknameCommand;
+    @Inject private ShowCommand showCommand;
 
     @PostConstruct
     public void init() {
-        Operation.insertIntoMap(operations, new HelloOperation(userSLO));
-        Operation.insertIntoMap(operations, new ListOperation(userSLO));
-        Operation.insertIntoMap(operations, new NicknameOperation(userSLO));
-        Operation.insertIntoMap(operations, new DeleteOperation(userSLO));
+        operations.add(deleteCommand);
+        operations.add(nicknameCommand);
+        operations.add(showCommand);
     }
 
     @Override
     public String getName() {
-        return "user";
+        return "profile";
     }
 
     @Override
@@ -51,26 +44,12 @@ public class UserCommand extends Command {
 
     @Override
     public List<ApplicationCommandOptionData> getOptions() {
-        return List.of(
-                CommandUtil.optionData(
-                        "operation",
-                        "What operation to execute",
-                        ApplicationCommandOption.Type.STRING.getValue(),
-                        true
-                ),
-                CommandUtil.optionData(
-                        "argument0",
-                        "Optional first argument",
-                        ApplicationCommandOption.Type.STRING.getValue(),
-                        false
-                ));
+        return Collections.singletonList(OPERATION_OPTION_DATA);
     }
 
     @Override
     public Mono<Void> handle(ChatInputInteractionEvent e) {
-        return CommandUtil.getCommandValue(e, "operation")
-                .map(opName -> operations.get(opName).handle(e))
-                .orElseGet(() -> e.reply("Operation type is either missing or unsupported."));
+        return super.throughOperation(e, operations, CommandUtil.getRequiredParameterAsString(e, PARAM_OPERATION));
     }
 
 }

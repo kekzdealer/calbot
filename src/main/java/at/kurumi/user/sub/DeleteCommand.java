@@ -1,25 +1,43 @@
-package at.kurumi.user.operations;
+package at.kurumi.user.sub;
 
+import at.kurumi.commands.Command;
 import at.kurumi.commands.CommandUtil;
-import at.kurumi.commands.Operation;
 import at.kurumi.user.UserSLO;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
+import discord4j.discordjson.json.ApplicationCommandOptionData;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 import reactor.core.publisher.Mono;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
- * Permanently delete all your data from the database.
+ * User sub-command to delete a set of profile data. Basically "unregisters" the user
  */
-public class DeleteOperation extends Operation {
+@Stateless
+public class DeleteCommand extends Command {
 
     private final UserSLO userSLO;
 
-    public DeleteOperation(UserSLO userSLO) {
+    @Inject
+    public DeleteCommand(UserSLO userSLO) {
         this.userSLO = userSLO;
     }
 
     @Override
     public String getName() {
         return "delete";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Delete you profile data";
+    }
+
+    @Override
+    public List<ApplicationCommandOptionData> getOptions() {
+        return Collections.emptyList();
     }
 
     @Override

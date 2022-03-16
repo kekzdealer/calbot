@@ -42,6 +42,11 @@ public class User {
         this.name = name;
     }
 
+    /**
+     * Value is sanitized at this point and safe to use in the {@link java.time.ZoneId#of(String)} method.
+     *
+     * @return ZoneId compatible timezone string
+     */
     public String getTimezone() {
         return timezone;
     }

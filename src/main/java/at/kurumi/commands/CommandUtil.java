@@ -4,13 +4,10 @@ import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
+import discord4j.core.object.entity.User;
 import discord4j.discordjson.json.*;
+import reactor.core.publisher.Mono;
 
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 
@@ -107,24 +104,93 @@ public class CommandUtil {
                 .build();
     }
 
-
-    public static Optional<String> getCommandValue(ChatInputInteractionEvent e, String name) {
+    /**
+     * Get the value of a command parameter that is marked as <b>not</b> required.
+     *
+     * @param e the interaction
+     * @param name the parameter name
+     * @return The value or an empty Optional
+     */
+    public static Optional<String> getParameterAsString(ChatInputInteractionEvent e, String name) {
         return e.getOption(name)
                 .flatMap(ApplicationCommandInteractionOption::getValue)
                 .map(ApplicationCommandInteractionOptionValue::asString);
     }
 
-    public static Optional<Instant> getCommandValueAsUTCInstant(ChatInputInteractionEvent e, String name)
-            throws DateTimeParseException {
-        // 1) create the parsing pattern
-        final var formatter = DateTimeFormatter.ofPattern("dd.MM HH:mm");
-        return getCommandValue(e, name).map(formatter::parse)
-                // 2) java.time.Instant representation of the date-time from the user's time zone
-                .map(Instant::from)
-                // 3) User local Instant is combined with time zone information
-                .map(instant -> ZonedDateTime.ofInstant(instant, ZoneId.systemDefault()))
-                // 4) Convert back to Instant, but this time normalized to UTC
-                .map(ZonedDateTime::toInstant);
+    /**
+     * Get the value of a command parameter that is marked as <b>not</b> required.
+     *
+     * @param e the interaction
+     * @param name the parameter name
+     * @return The value or an empty Optional
+     */
+    public static Optional<Long> getParameterAsLong(ChatInputInteractionEvent e, String name) {
+        return e.getOption(name)
+                .flatMap(ApplicationCommandInteractionOption::getValue)
+                .map(ApplicationCommandInteractionOptionValue::asLong);
+    }
+
+    /**
+     * Get the value of a command parameter that is marked as <b>not</b> required.
+     *
+     * @param e the interaction
+     * @param name the parameter name
+     * @return The value or an empty Optional
+     */
+    public static Optional<User> getParameterAsUser(ChatInputInteractionEvent e, String name) {
+        return e.getOption(name)
+                .flatMap(ApplicationCommandInteractionOption::getValue)
+                .map(ApplicationCommandInteractionOptionValue::asUser)
+                .map(Mono::block);
+    }
+
+    /**
+     * Get the value of a command parameter that is marked as <b>required</b>.
+     *
+     * @param e the interaction
+     * @param name the parameter name
+     * @return The value
+     * @throws RuntimeException if there is no parameter value. This is a dev error.
+     */
+    public static String getRequiredParameterAsString(ChatInputInteractionEvent e, String name) {
+        return e.getOption(name)
+                .flatMap(ApplicationCommandInteractionOption::getValue)
+                .map(ApplicationCommandInteractionOptionValue::asString)
+                .orElseThrow(() -> new RuntimeException("Method only allowed to be used with required parameter, " +
+                        "yet parameter value is not present"));
+    }
+
+    /**
+     * Get the value of a command parameter that is marked as <b>required</b>.
+     *
+     * @param e the interaction
+     * @param name the parameter name
+     * @return The value
+     * @throws RuntimeException if there is no parameter value. This is a dev error.
+     */
+    public static Long getRequiredParameterAsLong(ChatInputInteractionEvent e, String name) {
+        return e.getOption(name)
+                .flatMap(ApplicationCommandInteractionOption::getValue)
+                .map(ApplicationCommandInteractionOptionValue::asLong)
+                .orElseThrow(() -> new RuntimeException("Method only allowed to be used with required parameter, " +
+                        "yet parameter value is not present"));
+    }
+
+    /**
+     * Get the value of a command parameter that is marked as <b>required</b>.
+     *
+     * @param e the interaction
+     * @param name the parameter name
+     * @return The value
+     * @throws RuntimeException if there is no parameter value. This is a dev error.
+     */
+    public static User getRequiredParameterAsUser(ChatInputInteractionEvent e, String name) {
+        return e.getOption(name)
+                .flatMap(ApplicationCommandInteractionOption::getValue)
+                .map(ApplicationCommandInteractionOptionValue::asUser)
+                .map(Mono::block)
+                .orElseThrow(() -> new RuntimeException("Method only allowed to be used with required parameter, " +
+                        "yet parameter value is not present"));
     }
 
     public static long extractDiscordUserId(ChatInputInteractionEvent e) {

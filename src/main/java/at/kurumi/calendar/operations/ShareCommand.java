@@ -3,23 +3,31 @@ package at.kurumi.calendar.operations;
 import at.kurumi.calendar.EventSLO;
 import at.kurumi.commands.Command;
 import at.kurumi.commands.CommandUtil;
-import at.kurumi.commands.Operation;
 import at.kurumi.user.User;
 import at.kurumi.user.UserSLO;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
+import discord4j.core.object.command.ApplicationCommandOption;
+import discord4j.discordjson.json.ApplicationCommandOptionData;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 import reactor.core.publisher.Mono;
 
-import java.util.NoSuchElementException;
+import java.util.List;
 
 /**
  * Share an event with another user.
  */
-public class ShareOperation extends Operation {
+@Stateless
+public class ShareCommand extends Command {
+
+    private static final String PARAM_TARGET_EVENT = "event";
+    private static final String PARAM_TARGET_USER = "recipient";
 
     private final EventSLO eventSLO;
     private final UserSLO userSLO;
 
-    public ShareOperation(EventSLO eventSLO, UserSLO userSLO) {
+    @Inject
+    public ShareCommand(EventSLO eventSLO, UserSLO userSLO) {
         this.eventSLO = eventSLO;
         this.userSLO = userSLO;
     }
@@ -27,6 +35,25 @@ public class ShareOperation extends Operation {
     @Override
     public String getName() {
         return "share";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Share an event with someone else";
+    }
+
+    @Override
+    public List<ApplicationCommandOptionData> getOptions() {
+        return List.of(
+                CommandUtil.optionData(PARAM_TARGET_EVENT,
+                        "The event you want to share",
+                        ApplicationCommandOption.Type.INTEGER.getValue(),
+                        true),
+                CommandUtil.optionData(PARAM_TARGET_USER,
+                        "The recipient user",
+                        ApplicationCommandOption.Type.USER.getValue(),
+                        true)
+        );
     }
 
     @Override
@@ -38,34 +65,18 @@ public class ShareOperation extends Operation {
             return super.simpleReply(e, "Sorry, I wasn't able to retrieve your user data.");
         }
 
-        long recipientDiscordId;
-        try {
-            recipientDiscordId = CommandUtil.getCommandValue(e, "argument0")
-                    .map(Long::parseLong)
-                    .orElseThrow();
-        } catch (NumberFormatException numberFormatException) {
-            return super.invalidArgumentReply(e, "Only integer numbers allowed");
-        } catch (NoSuchElementException noSuchElementException) {
-            return super.missingArgumentReply(e, "Please specify the recipient id");
-        }
         // Get recipient user
+        final var recipientDiscordId = CommandUtil.getRequiredParameterAsUser(e, PARAM_TARGET_USER)
+                .getId()
+                .asLong();
         final var recipientUser = userSLO.getUserByDiscordId(recipientDiscordId);
         if(!recipientUser.isPresent()) {
             return super.simpleReply(e, "I wasn't able to retrieve the recipients user data.");
         }
-        // Parse TARGET input parameter to int
-        int target;
-        try {
-            target = CommandUtil.getCommandValue(e, Command.TARGET_OPTION_DATA.name())
-                    .map(Integer::parseInt)
-                    .orElseThrow();
-        } catch (NumberFormatException numberFormatException) {
-            return super.invalidArgumentReply(e, "Only integer numbers allowed");
-        } catch (NoSuchElementException noSuchElementException) {
-            return super.missingArgumentReply(e, "Please specify a target");
-        }
 
-        return shareEvent(e, user.get(), target, recipientUser.get());
+        final var eventId = CommandUtil.getRequiredParameterAsLong(e, PARAM_TARGET_EVENT).intValue();
+
+        return shareEvent(e, user.get(), eventId, recipientUser.get());
     }
 
     private Mono<Void> shareEvent(ChatInputInteractionEvent e, User user, int eventId, User target) {

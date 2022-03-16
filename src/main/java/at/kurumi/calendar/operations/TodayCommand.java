@@ -1,24 +1,30 @@
 package at.kurumi.calendar.operations;
 
 import at.kurumi.calendar.EventSLO;
+import at.kurumi.commands.Command;
 import at.kurumi.commands.CommandUtil;
-import at.kurumi.commands.Operation;
 import at.kurumi.user.UserSLO;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
+import discord4j.discordjson.json.ApplicationCommandOptionData;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 import reactor.core.publisher.Mono;
 
 import java.time.*;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * List all events due today, in chronological order
  */
-public class TodayOperation extends Operation {
+@Stateless
+public class TodayCommand extends Command {
 
     private final EventSLO eventSLO;
     private final UserSLO userSLO;
 
-    public TodayOperation(EventSLO eventSLO, UserSLO userSLO) {
+    @Inject
+    public TodayCommand(EventSLO eventSLO, UserSLO userSLO) {
         this.eventSLO = eventSLO;
         this.userSLO = userSLO;
     }
@@ -29,9 +35,18 @@ public class TodayOperation extends Operation {
     }
 
     @Override
+    public String getDescription() {
+        return "List all events due today in chronological order";
+    }
+
+    @Override
+    public List<ApplicationCommandOptionData> getOptions() {
+        return Collections.emptyList();
+    }
+
+    @Override
     public Mono<Void> handle(ChatInputInteractionEvent e) {
         final var discordId = CommandUtil.extractDiscordUserId(e);
-
         final var user = userSLO.getUserByDiscordId(discordId);
 
         return user.map(u -> {
@@ -39,7 +54,7 @@ public class TodayOperation extends Operation {
             Define "today" using two Instants from 00:00 - 23:59, from the user's time zone perspective,
             then convert both to UTC
              */
-            final var localDate = LocalDate.now(ZoneId.systemDefault());
+            final var localDate = LocalDate.now(ZoneId.of(u.getTimezone()));
             final var instant0000 = LocalDateTime.of(localDate, LocalTime.MIDNIGHT).toInstant(ZoneOffset.UTC);
             final var instant2359 = LocalDateTime.of(localDate, LocalTime.MAX).toInstant(ZoneOffset.UTC);
 
