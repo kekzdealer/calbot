@@ -1,11 +1,9 @@
-package at.kurumi.calendar;
+package at.kurumi.commands.calendar;
 
 import at.kurumi.Database;
-import at.kurumi.user.User;
+import at.kurumi.commands.user.User;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -16,8 +14,6 @@ import java.util.stream.Collectors;
 
 @Stateless
 public class EventSLO {
-
-    private static final Logger LOG = LogManager.getLogger();
 
     private final Database database;
 
@@ -73,6 +69,12 @@ public class EventSLO {
             // Check if in time span
             return startInstant.isAfter(begin) && endInstant.isBefore(end);
         }).collect(Collectors.toList());
+    }
+
+    public List<Event> getEventsDueBy(Instant dueBy) {
+        return database.getAllResultsFrom(Event.class).stream()
+                .filter(event -> dueBy.isAfter(event.getStart().toInstant()))
+                .collect(Collectors.toList());
     }
 
 }

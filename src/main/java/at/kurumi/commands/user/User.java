@@ -1,6 +1,6 @@
-package at.kurumi.user;
+package at.kurumi.commands.user;
 
-import at.kurumi.calendar.Event;
+import at.kurumi.commands.calendar.Event;
 import jakarta.persistence.*;
 
 import java.util.HashSet;

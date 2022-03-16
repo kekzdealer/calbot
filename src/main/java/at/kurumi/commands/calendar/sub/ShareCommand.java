@@ -1,10 +1,10 @@
-package at.kurumi.calendar.operations;
+package at.kurumi.commands.calendar.sub;
 
-import at.kurumi.calendar.EventSLO;
+import at.kurumi.commands.calendar.EventSLO;
 import at.kurumi.commands.Command;
 import at.kurumi.commands.CommandUtil;
-import at.kurumi.user.User;
-import at.kurumi.user.UserSLO;
+import at.kurumi.commands.user.User;
+import at.kurumi.commands.user.UserSLO;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandOption;
 import discord4j.discordjson.json.ApplicationCommandOptionData;

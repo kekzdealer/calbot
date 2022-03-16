@@ -1,8 +1,8 @@
-package at.kurumi.user.sub;
+package at.kurumi.commands.user.sub;
 
 import at.kurumi.commands.Command;
 import at.kurumi.commands.CommandUtil;
-import at.kurumi.user.UserSLO;
+import at.kurumi.commands.user.UserSLO;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import jakarta.ejb.Stateless;
@@ -13,26 +13,26 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * User sub-command to delete a set of profile data. Basically "unregisters" the user
+ * User sub-command to display a set of profile data.
  */
 @Stateless
-public class DeleteCommand extends Command {
+public class ShowCommand extends Command {
 
     private final UserSLO userSLO;
 
     @Inject
-    public DeleteCommand(UserSLO userSLO) {
+    public ShowCommand(UserSLO userSLO) {
         this.userSLO = userSLO;
     }
 
     @Override
     public String getName() {
-        return "delete";
+        return "list";
     }
 
     @Override
     public String getDescription() {
-        return "Delete you profile data";
+        return "Show your profile data";
     }
 
     @Override
@@ -44,10 +44,13 @@ public class DeleteCommand extends Command {
     public Mono<Void> handle(ChatInputInteractionEvent e) {
         final var discordId = CommandUtil.extractDiscordUserId(e);
 
-        if (userSLO.deleteUserByDiscordId(discordId)) {
-            return super.simpleReply(e, "Profile deleted. Goodbye.");
-        } else {
-            return super.simpleReply(e, "Sorry, I wasn't able to delete your profile.");
-        }
+        final var user = userSLO.getUserByDiscordId(discordId);
+
+        return user.map(u -> super.simpleReply(e, String.format("%s's profile:\n" +
+                        "```id:\t\t\t%d\n" +
+                        "discordId:\t%d\n" +
+                        "nickname:\t%s```",
+                        u.getName(), u.getId(), u.getDiscordId(), u.getName())))
+                .orElseGet(() -> super.simpleReply(e, "Sorry, I wasn't able to retrieve your information."));
     }
 }

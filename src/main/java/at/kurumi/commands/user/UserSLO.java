@@ -1,4 +1,4 @@
-package at.kurumi.user;
+package at.kurumi.commands.user;
 
 import at.kurumi.Database;
 import jakarta.ejb.Stateless;

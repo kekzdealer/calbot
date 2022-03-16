@@ -1,4 +1,4 @@
-package at.kurumi;
+package at.kurumi.commands.shutdown;
 
 import at.kurumi.commands.Command;
 import discord4j.core.event.domain.interaction.ChatInputAutoCompleteEvent;

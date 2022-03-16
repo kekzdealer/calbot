@@ -1,6 +1,6 @@
-package at.kurumi.calendar;
+package at.kurumi.commands.calendar;
 
-import at.kurumi.user.User;
+import at.kurumi.commands.user.User;
 import jakarta.persistence.*;
 
 import java.sql.Timestamp;

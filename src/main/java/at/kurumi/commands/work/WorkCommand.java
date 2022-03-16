@@ -1,4 +1,4 @@
-package at.kurumi.work;
+package at.kurumi.commands.work;
 
 import at.kurumi.commands.Command;
 import discord4j.core.event.domain.interaction.ChatInputAutoCompleteEvent;
@@ -19,15 +19,8 @@ public class WorkCommand extends Command {
     private static final long WORK_DURATION_HOURS = 8L;
     private static final long WORK_DURATION_MINUTES = 24L;
 
-    private final Clock clock;
-
     private PrivateChannel replyChannel;
     private Instant done;
-
-
-    public WorkCommand(Clock clock) {
-        this.clock = clock;
-    }
 
     @Override
     public String getName() {
@@ -51,11 +44,11 @@ public class WorkCommand extends Command {
                 .plus(WORK_DURATION_HOURS, ChronoUnit.HOURS)
                 .plus(WORK_DURATION_MINUTES, ChronoUnit.MINUTES);
 
-        clock.everyMinute(() -> {
-            if(Instant.now().isAfter(done)) {
-                replyChannel.createMessage("Work done").block();
-            }
-        });
+//        clock.everyMinute(() -> {
+//            if(Instant.now().isAfter(done)) {
+//                replyChannel.createMessage("Work done").block();
+//            }
+//        });
 
         return null;
     }
