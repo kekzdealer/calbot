@@ -13,17 +13,19 @@ import discord4j.core.event.domain.interaction.ApplicationCommandInteractionEven
 import discord4j.core.event.domain.interaction.ChatInputAutoCompleteEvent;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
+import discord4j.core.object.presence.ClientActivity;
+import discord4j.core.object.presence.ClientPresence;
+import discord4j.core.object.presence.Status;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+import jakarta.ejb.Schedule;
 import jakarta.ejb.Startup;
 import jakarta.inject.Inject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import reactor.core.publisher.Mono;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Startup
 public class BotStart {
@@ -74,6 +76,24 @@ public class BotStart {
     @PreDestroy
     public void shutdown() {
         discordClient.logout();
+    }
+
+    /**
+     * Update Discord presence with a new "X is playing..." message.
+     */
+    @Schedule(hour="*/1", info="Update the Discord presence every hour", persistent = false)
+    public void cyclePresence() {
+        final var r= new Random();
+        final var dia = List.of("Digital Interaction Assistant",
+                "Dynamically Integrating Assistant",
+                "Delectable Illumination Assistant",
+                "Dutiful Irrigation Assistant",
+                "Dashing Incident Assistant",
+                "Dubious Investment Advisor");
+        final var selection = dia.get(r.nextInt(dia.size()));
+        final var activity = ClientActivity.playing(selection);
+        final var status = Status.ONLINE;
+        discordClient.updatePresence(ClientPresence.of(status, activity)).block();
     }
 
     private Mono<Void> delegateToProgram(ApplicationCommandInteractionEvent event) {
