@@ -3,9 +3,10 @@ package at.kurumi.commands.calendar;
 import discord4j.common.util.Snowflake;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.object.entity.User;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.Resource;
-import jakarta.ejb.*;
+import jakarta.ejb.Schedule;
+import jakarta.ejb.Singleton;
+import jakarta.ejb.Startup;
+import jakarta.ejb.Timer;
 import jakarta.inject.Inject;
 
 import java.time.Instant;
@@ -17,11 +18,8 @@ import java.time.Instant;
 @Singleton
 public class EventScanner {
 
-    @Resource
-    TimerService timerService;
-
-    private GatewayDiscordClient discordClient;
-    private EventSLO eventSLO;
+    private final GatewayDiscordClient discordClient;
+    private final EventSLO eventSLO;
 
     @Inject
     public EventScanner(GatewayDiscordClient discordClient, EventSLO eventSLO) {
@@ -29,13 +27,7 @@ public class EventScanner {
         this.eventSLO = eventSLO;
     }
 
-    @PostConstruct
-    public void initTimer() {
-        timerService.createTimer(0, 60000, "Event notification timer. Runs every minute.");
-        // TODO look at calendar or date controlled timers in timer service once you can download src from mvn again
-    }
-
-    @Timeout
+    @Schedule(minute = "*/1", info = "Scan for events and notify participants", persistent = false)
     public void scanAndNotify(Timer timer) {
         final var events = eventSLO.getEventsDueBy(Instant.now());
         events.forEach(event -> {
@@ -44,12 +36,10 @@ public class EventScanner {
                     event.getStart().getTime(),
                     event.getEnd().getTime());
             final var participants = event.getUsers();
-            participants.forEach(user -> {
-                discordClient.getUserById(Snowflake.of(user.getDiscordId()))
-                        .flatMap(User::getPrivateChannel)
-                        .flatMap(privateChannel -> privateChannel.createMessage(notification))
-                        .block();
-            });
+            participants.forEach(user -> discordClient.getUserById(Snowflake.of(user.getDiscordId()))
+                    .flatMap(User::getPrivateChannel)
+                    .flatMap(privateChannel -> privateChannel.createMessage(notification))
+                    .block());
         });
     }
 }

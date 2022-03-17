@@ -61,7 +61,7 @@ public class ShareCommand extends Command {
         // Get sharing user
         final var discordId = CommandUtil.extractDiscordUserId(e);
         final var user = userSLO.getUserByDiscordId(discordId);
-        if(!user.isPresent()) {
+        if(user.isEmpty()) {
             return super.simpleReply(e, "Sorry, I wasn't able to retrieve your user data.");
         }
 
@@ -70,7 +70,7 @@ public class ShareCommand extends Command {
                 .getId()
                 .asLong();
         final var recipientUser = userSLO.getUserByDiscordId(recipientDiscordId);
-        if(!recipientUser.isPresent()) {
+        if(recipientUser.isEmpty()) {
             return super.simpleReply(e, "I wasn't able to retrieve the recipients user data.");
         }
 

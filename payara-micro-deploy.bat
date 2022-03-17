@@ -1,1 +1,1 @@
-java -jar payara-micro*.jar --deploy ./target/*.war
+java -jar payara-micro-5.2022.1.jar --deploy ./target/DIA.war

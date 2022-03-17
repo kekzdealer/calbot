@@ -23,7 +23,7 @@ public abstract class Command {
             true
     );
 
-    protected final Logger LOG = LogManager.getLogger(getName() + "-command");
+    protected final Logger LOG = LogManager.getLogger();
 
     /**
      * Get the name this command should be listed under in Discord.
