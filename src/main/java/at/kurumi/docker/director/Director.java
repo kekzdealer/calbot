@@ -13,7 +13,7 @@ public class Director {
 
     @Inject LoggingRouter log;
 
-    public void doThing(String rootPath) {
+    public void createContainersFromConfiguration(String rootPath) {
         final var dockerClient = DockerClientBuilder.getInstance().build();
 
         collectConfigurationFiles(rootPath).stream()
@@ -22,6 +22,10 @@ public class Director {
                 .map(Optional::get)
                 .map(container -> container.create(dockerClient))
                 .forEach(response -> log.internalInfo("Create Container", response.toString()));
+
+    }
+
+    public void startContainers() {
 
     }
 

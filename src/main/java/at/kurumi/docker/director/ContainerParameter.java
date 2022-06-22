@@ -17,12 +17,12 @@ public class ContainerParameter {
     /**
      * Port mappings, host to container
      */
-    private Set<String> ports;
+    private List<String> ports;
 
     /**
      * Set of environment variables to pass to the container
      */
-    private Set<String> environment;
+    private List<String> environment;
 
     /**
      * Set of volume mappings. Either docker volume to container directory, or host directory to container directory.
@@ -45,32 +45,24 @@ public class ContainerParameter {
         this.containerName = containerName;
     }
 
-    public Set<String> getPorts() {
+    public List<String> getPorts() {
         return ports;
-    }
-
-    public void setPorts(Set<String> ports) {
-        this.ports = ports;
     }
 
     public void addPortMapping(String mapping) {
         if(this.ports == null) {
-            this.ports = new HashSet<>();
+            this.ports = new ArrayList<>();
         }
         this.ports.add(mapping);
     }
 
-    public Set<String> getEnvironment() {
+    public List<String> getEnvironment() {
         return environment;
-    }
-
-    public void setEnvironment(Set<String> environment) {
-        this.environment = environment;
     }
 
     public void addEnv(String env) {
         if(this.environment == null) {
-            this.environment = new HashSet<>();
+            this.environment = new ArrayList<>();
         }
         this.environment.add(env);
     }

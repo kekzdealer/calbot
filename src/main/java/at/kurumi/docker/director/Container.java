@@ -46,11 +46,30 @@ public class Container implements Comparable<Container> {
                 .collect(Collectors.toList());
         createContainerCmd.withVolumes(volumes);
 
-        // env
+        createContainerCmd.withEnv(parameter.getEnvironment());
 
-        // ports
+        createContainerCmd.withPortSpecs(parameter.getPorts());
 
         return createContainerCmd.exec();
+    }
+
+    public void start(DockerClient client) {
+        client.startContainerCmd(parameter.getContainerName()).exec();
+    }
+
+    public void stop(DockerClient client) {
+        client.stopContainerCmd(parameter.getContainerName()).exec();
+    }
+
+    public void kill(DockerClient client) {
+        client.killContainerCmd(parameter.getContainerName()).exec();
+    }
+
+    public void isHealthy(DockerClient client) {
+        final var icr = client.inspectContainerCmd(parameter.getContainerName()).exec();
+        final var status = icr.getState().getHealth().getStatus();
+        System.out.println(status);
+        // TODO parse status and return boolean
     }
 
     @Override
