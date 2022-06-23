@@ -1,8 +1,8 @@
 package at.kurumi.discord;
 
-import at.kurumi.discord.commands.calendar.CalendarCommand;
 import at.kurumi.discord.commands.Command;
 import at.kurumi.discord.commands.CommandUtil;
+import at.kurumi.discord.commands.calendar.CalendarCommand;
 import at.kurumi.discord.commands.register.RegisterCommand;
 import at.kurumi.discord.commands.shutdown.ShutdownCommand;
 import at.kurumi.discord.commands.user.UserCommand;
@@ -19,7 +19,6 @@ import discord4j.core.object.presence.Status;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.ejb.Schedule;
-import jakarta.ejb.Startup;
 import jakarta.inject.Inject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,8 +26,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.*;
 
-@Startup
-public class BotStart {
+public class DiscordInterface {
 
     private static final Logger LOG = LogManager.getLogger();
     private static final long KURIS_LAB_GUILD_ID = 136661702287556608L;
