@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>at.kurumi</groupId>
-    <artifactId>DIA</artifactId>
+    <artifactId>Kurumi</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
 
-    <name>DIA</name>
+    <name>Kurumi</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -18,7 +18,7 @@
     </properties>
 
     <build>
-        <finalName>DIA</finalName>
+        <finalName>Kurumi</finalName>
         <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
             <plugins>
                 <plugin>
