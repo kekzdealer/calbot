@@ -1,11 +1,11 @@
-package at.kurumi.commands.calendar;
+package at.kurumi.discord.commands.calendar;
 
-import at.kurumi.commands.calendar.sub.CreateCommand;
-import at.kurumi.commands.calendar.sub.DeleteCommand;
-import at.kurumi.commands.calendar.sub.ShareCommand;
-import at.kurumi.commands.calendar.sub.TodayCommand;
-import at.kurumi.commands.Command;
-import at.kurumi.commands.CommandUtil;
+import at.kurumi.discord.commands.calendar.sub.CreateCommand;
+import at.kurumi.discord.commands.calendar.sub.DeleteCommand;
+import at.kurumi.discord.commands.calendar.sub.ShareCommand;
+import at.kurumi.discord.commands.calendar.sub.TodayCommand;
+import at.kurumi.discord.commands.Command;
+import at.kurumi.discord.commands.CommandUtil;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import jakarta.annotation.PostConstruct;

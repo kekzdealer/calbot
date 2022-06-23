@@ -1,7 +1,7 @@
-package at.kurumi.commands.calendar;
+package at.kurumi.discord.commands.calendar;
 
 import at.kurumi.Database;
-import at.kurumi.commands.user.User;
+import at.kurumi.discord.commands.user.User;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 

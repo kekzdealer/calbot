@@ -1,6 +1,6 @@
-package at.kurumi.commands.work;
+package at.kurumi.discord.commands.work;
 
-import at.kurumi.commands.Command;
+import at.kurumi.discord.commands.Command;
 import discord4j.core.event.domain.interaction.ChatInputAutoCompleteEvent;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.entity.channel.PrivateChannel;

@@ -1,6 +1,6 @@
-package at.kurumi.commands.shutdown;
+package at.kurumi.discord.commands.shutdown;
 
-import at.kurumi.commands.Command;
+import at.kurumi.discord.commands.Command;
 import discord4j.core.event.domain.interaction.ChatInputAutoCompleteEvent;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.discordjson.json.ApplicationCommandOptionData;

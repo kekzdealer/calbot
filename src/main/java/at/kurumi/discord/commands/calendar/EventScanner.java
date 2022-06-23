@@ -1,4 +1,4 @@
-package at.kurumi.commands.calendar;
+package at.kurumi.discord.commands.calendar;
 
 import discord4j.common.util.Snowflake;
 import discord4j.core.GatewayDiscordClient;

@@ -1,8 +1,8 @@
-package at.kurumi.commands.user.sub;
+package at.kurumi.discord.commands.user.sub;
 
-import at.kurumi.commands.Command;
-import at.kurumi.commands.CommandUtil;
-import at.kurumi.commands.user.UserSLO;
+import at.kurumi.discord.commands.Command;
+import at.kurumi.discord.commands.CommandUtil;
+import at.kurumi.discord.commands.user.UserSLO;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import jakarta.ejb.Stateless;

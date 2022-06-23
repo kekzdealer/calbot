@@ -1,4 +1,4 @@
-package at.kurumi.commands;
+package at.kurumi.discord.commands;
 
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;

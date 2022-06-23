@@ -1,12 +1,12 @@
-package at.kurumi;
+package at.kurumi.discord;
 
-import at.kurumi.commands.calendar.CalendarCommand;
-import at.kurumi.commands.Command;
-import at.kurumi.commands.CommandUtil;
-import at.kurumi.commands.register.RegisterCommand;
-import at.kurumi.commands.shutdown.ShutdownCommand;
-import at.kurumi.commands.user.UserCommand;
-import at.kurumi.commands.work.WorkCommand;
+import at.kurumi.discord.commands.calendar.CalendarCommand;
+import at.kurumi.discord.commands.Command;
+import at.kurumi.discord.commands.CommandUtil;
+import at.kurumi.discord.commands.register.RegisterCommand;
+import at.kurumi.discord.commands.shutdown.ShutdownCommand;
+import at.kurumi.discord.commands.user.UserCommand;
+import at.kurumi.discord.commands.work.WorkCommand;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.interaction.ApplicationCommandInteractionEvent;

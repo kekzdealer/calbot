@@ -1,9 +1,9 @@
-package at.kurumi.commands.calendar.sub;
+package at.kurumi.discord.commands.calendar.sub;
 
-import at.kurumi.commands.calendar.EventSLO;
-import at.kurumi.commands.Command;
-import at.kurumi.commands.CommandUtil;
-import at.kurumi.commands.user.UserSLO;
+import at.kurumi.discord.commands.calendar.EventSLO;
+import at.kurumi.discord.commands.Command;
+import at.kurumi.discord.commands.CommandUtil;
+import at.kurumi.discord.commands.user.UserSLO;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import jakarta.ejb.Stateless;

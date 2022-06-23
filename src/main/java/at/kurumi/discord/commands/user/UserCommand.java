@@ -1,10 +1,10 @@
-package at.kurumi.commands.user;
+package at.kurumi.discord.commands.user;
 
-import at.kurumi.commands.Command;
-import at.kurumi.commands.CommandUtil;
-import at.kurumi.commands.user.sub.DeleteCommand;
-import at.kurumi.commands.user.sub.NicknameCommand;
-import at.kurumi.commands.user.sub.ShowCommand;
+import at.kurumi.discord.commands.Command;
+import at.kurumi.discord.commands.CommandUtil;
+import at.kurumi.discord.commands.user.sub.DeleteCommand;
+import at.kurumi.discord.commands.user.sub.NicknameCommand;
+import at.kurumi.discord.commands.user.sub.ShowCommand;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import jakarta.annotation.PostConstruct;

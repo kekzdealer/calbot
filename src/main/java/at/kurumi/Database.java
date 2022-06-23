@@ -1,7 +1,7 @@
 package at.kurumi;
 
-import at.kurumi.commands.calendar.Event;
-import at.kurumi.commands.user.User;
+import at.kurumi.discord.commands.calendar.Event;
+import at.kurumi.discord.commands.user.User;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceException;

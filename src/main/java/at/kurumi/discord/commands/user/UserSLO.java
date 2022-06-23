@@ -1,4 +1,4 @@
-package at.kurumi.commands.user;
+package at.kurumi.discord.commands.user;
 
 import at.kurumi.Database;
 import jakarta.ejb.Stateless;
