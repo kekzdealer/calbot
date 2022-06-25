@@ -2,12 +2,17 @@ package at.kurumi.purchasing;
 
 import at.kurumi.Database;
 import at.kurumi.logging.LoggingRouter;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceException;
+import jakarta.persistence.RollbackException;
+import org.hibernate.Session;
+import org.hibernate.query.Query;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class ShoppingList {
 
@@ -15,33 +20,76 @@ public class ShoppingList {
 
     @Inject LoggingRouter log;
 
-    public void add(String name, String note) {
-        final var search = "SELECT * " +
-                "FROM Groceries" +
-                "WHERE name = ? AND note = ?;";
+    private Query<Groceries> getIdQuery(Session session, String name, String note) {
+        final var cb = session.getCriteriaBuilder();
+        final var cr = cb.createQuery(Groceries.class);
+        final var root = cr.from(Groceries.class);
 
-        final var update = "UPDATE isActive VALUES(?)" +
-                "FROM Groceries" +
-                "WHERE name = ? AND note = ?;";
+        final var nameEq = cb.equal(root.get("name"), name);
+        final var noteEq = cb.equal(root.get("note"), note);
 
-        final var insert = "INSERT INTO Groceries(name, note)" +
-                "VALUES(?, ?);";
+        cr.select(root).where(cb.and(nameEq, noteEq));
 
-        try (final var session = database.openSession()) {
-
-        }
-
-
-        final var item = new Groceries();
-        item.setName(name);
-        item.setNote(note);
-
+        return session.createQuery(cr);
     }
 
-    public void remove(String name) {
-        final var deactivate = "UPDATE Groceries" +
-                "SET isActive = false" +
-                "WHERE name = ? AND note = ?;";
+    /**
+     * Add a Grocery item to the list. If the item is in the backlog, reactivate it instead.
+     *
+     * @param name Name of the item
+     * @param note Additional notes
+     */
+    public void add(String name, String note) {
+        try (final var session = database.openSession()) {
+            // Check if the item was added before
+            Optional<Groceries> item;
+            try {
+                item = Optional.of(getIdQuery(session, name, note)
+                        .getSingleResult());
+            } catch (NoResultException noResultException) {
+                item = Optional.empty();
+            }
+
+            final var transaction = session.beginTransaction();
+            item.ifPresentOrElse(i -> {
+                i.setActive(true);
+            }, () -> {
+                final var i = new Groceries();
+                i.setName(name);
+                i.setNote(note);
+                session.persist(i);
+            });
+            transaction.commit();
+        } catch (RollbackException rollbackException) {
+            log.internalError("Add Grocery Item", "Rollback occurred");
+        } catch (PersistenceException persistenceException) {
+            log.internalError("Add Grocery Item", "Persistence Exception");
+        }
+    }
+
+    public void remove(String name, String note) {
+        try (final var session = database.openSession()) {
+            // Check if the item was added before
+            Optional<Groceries> item;
+            try {
+                item = Optional.of(getIdQuery(session, name, note)
+                        .getSingleResult());
+            } catch (NoResultException noResultException) {
+                item = Optional.empty();
+            }
+
+            final var transaction = session.beginTransaction();
+            item.ifPresentOrElse(i -> {
+                i.setActive(false);
+            }, () -> {
+                // TODO add feedback
+            });
+            transaction.commit();
+        } catch (RollbackException rollbackException) {
+            log.internalError("Add Grocery Item", "Rollback occurred");
+        } catch (PersistenceException persistenceException) {
+            log.internalError("Add Grocery Item", "Persistence Exception");
+        }
     }
 
     public List<GroceriesI> list() {
