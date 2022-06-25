@@ -95,7 +95,11 @@
             <artifactId>docker-java</artifactId>
             <version>3.2.13</version>
         </dependency>
-
+        <dependency>
+            <groupId>me.xdrop</groupId>
+            <artifactId>fuzzywuzzy</artifactId>
+            <version>1.4.0</version>
+        </dependency>
     </dependencies>
     
 </project>

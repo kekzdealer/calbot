@@ -5,6 +5,8 @@ import at.kurumi.logging.LoggingRouter;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.RollbackException;
+import me.xdrop.fuzzywuzzy.FuzzySearch;
+import me.xdrop.fuzzywuzzy.model.BoundExtractedResult;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 
@@ -13,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class ShoppingList {
 
@@ -123,8 +126,17 @@ public class ShoppingList {
                 "WHERE ? + ? > lastActive";
     }
 
-    public List<GroceriesI> getSuggestionsForString(String input) {
+    public List<GroceriesI> getSuggestionsForName(String nameFragment) {
+        final var set = database.getAllResultsFrom(Groceries.class);
+        return FuzzySearch.extractSorted(nameFragment, set, Groceries::getName, 10)
+                .stream().map(BoundExtractedResult::getReferent)
+                .collect(Collectors.toList());
+    }
 
-        return Collections.emptyList();
+    public List<GroceriesI> getSuggestionsForNote(String name, String noteFragment) {
+        final var set = database.getResultsWhere("name", name, Groceries.class);
+        return FuzzySearch.extractSorted(noteFragment, set, Groceries::getNote, 10)
+                .stream().map(BoundExtractedResult::getReferent)
+                .collect(Collectors.toList());
     }
 }
