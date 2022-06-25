@@ -9,7 +9,7 @@ import java.io.*;
 import java.util.Optional;
 import java.util.Set;
 
-public class Director {
+public class DockerInterface {
 
     @Inject LoggingRouter log;
 
