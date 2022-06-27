@@ -9,3 +9,4 @@ env: PGDATA=/data/postgres
 env: APP_DB_USER=kurumi
 env: APP_DB_PASS=kurumi
 env: APP_DB_NAME=kurumi
+#: setup networks. check out that one sketch I once made

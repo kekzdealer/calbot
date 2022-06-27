@@ -89,6 +89,7 @@ public class DockerInterface {
                         case "port": parameter.addPortMapping(v); break;
                         case "env": parameter.addEnv(v); break;
                         case "volume": parameter.addVolumeMapping(v); break;
+                        case "#": /*This line is a comment, ignore it*/ break;
                         // TODO: This should really be an error and cancel the parse process but idk how to get out of here
                         default: log.internalWarn("Parse Container Config", "Unknown key: " + kv[0]);
                     }
