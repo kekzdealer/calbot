@@ -1,4 +1,4 @@
-package at.kurumi.docker.director;
+package at.kurumi.docker.entities;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
@@ -70,6 +70,10 @@ public class Container implements Comparable<Container> {
         final var status = icr.getState().getHealth().getStatus();
         System.out.println(status);
         // TODO parse status and return boolean
+    }
+
+    public String getName() {
+        return parameter.getContainerName();
     }
 
     @Override

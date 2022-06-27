@@ -1,6 +1,0 @@
-image: postgres
-container_name: Kurumi-DB
-volume: <volumeName>
-ports: <ports>
-env: DB_USER: kurumi
-env: DB_PASS: ...

@@ -1,4 +1,4 @@
-package at.kurumi.docker;
+package at.kurumi.docker.entities;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateVolumeResponse;

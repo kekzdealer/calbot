@@ -1,9 +1,8 @@
-package at.kurumi.docker;
+package at.kurumi.docker.entities;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateNetworkResponse;
 import com.github.dockerjava.api.model.Network;
-import discord4j.core.DiscordClient;
 
 public class Networks {
 

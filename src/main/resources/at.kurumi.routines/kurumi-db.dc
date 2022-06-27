@@ -1,0 +1,11 @@
+image: postgres
+container_name: kurumi-db
+volume: kurumi-db-data
+ports: 5432:5432
+env: POSTGRES_DB=kurumi
+env: POSTGRES_USER=kurumi
+env: POSTGRES_PASSWORD=kurumi
+env: PGDATA=/data/postgres
+env: APP_DB_USER=kurumi
+env: APP_DB_PASS=kurumi
+env: APP_DB_NAME=kurumi

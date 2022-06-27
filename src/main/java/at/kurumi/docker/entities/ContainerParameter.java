@@ -1,4 +1,4 @@
-package at.kurumi.docker.director;
+package at.kurumi.docker.entities;
 
 import java.util.*;
 
