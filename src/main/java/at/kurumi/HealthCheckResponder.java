@@ -1,13 +1,14 @@
 package at.kurumi;
 
+import jakarta.servlet.http.HttpServlet;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 @Path("/healthCheck")
-public class HealthCheckResponder {
+public class HealthCheckResponder extends HttpServlet {
 
     @GET
     @Produces(MediaType.TEXT_PLAIN)
