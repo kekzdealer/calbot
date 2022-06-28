@@ -10,6 +10,6 @@ public class HeartBeat {
     @GET
     @Path("/")
     public Response healthCheck() {
-        return Response.ok().entity("I'm alive").build();
+        return Response.ok().entity("I'm alive\n").build();
     }
 }
