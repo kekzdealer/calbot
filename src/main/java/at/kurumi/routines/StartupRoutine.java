@@ -5,10 +5,12 @@ import at.kurumi.docker.DockerInterface;
 import jakarta.ejb.Startup;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 import javax.annotation.PostConstruct;
 
 @Startup
+@Singleton
 public class StartupRoutine {
 
     private final DockerInterface dockerInterface;

@@ -8,8 +8,8 @@ import com.github.dockerjava.core.DockerClientBuilder;
 import io.netty.util.internal.StringUtil;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import jakarta.ejb.Startup;
 import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-
+@Singleton
 public class DockerInterface {
 
     private final LoggingRouter log;
@@ -34,12 +34,14 @@ public class DockerInterface {
     @PostConstruct
     protected void createClient() {
         dockerClient = DockerClientBuilder.getInstance().build();
+        log.internalInfo("Create Docker client", "Done");
     }
 
     @PreDestroy
     protected void destroyClient() {
         try {
             dockerClient.close();
+            log.internalInfo("Destroy Docker client", "Done");
         } catch (IOException e) {
             log.internalError("Closing Docker client", "Exception while closing. Resource may not have" +
                     "been released");
@@ -47,6 +49,7 @@ public class DockerInterface {
     }
 
     public String newContainer(String resourceName, boolean start) {
+        log.internalInfo("Create/Start Docker container", resourceName);
         try (final var is = DockerInterface.class.getClassLoader().getResourceAsStream(resourceName);
              final var isr = new InputStreamReader(is);
              final var br = new BufferedReader(isr)) {

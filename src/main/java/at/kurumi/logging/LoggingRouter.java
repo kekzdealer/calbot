@@ -7,9 +7,11 @@ import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.rest.util.Color;
 import jakarta.annotation.PostConstruct;
+import jakarta.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+@Singleton
 public class LoggingRouter {
 
     private static final Logger LOG = LogManager.getLogger();

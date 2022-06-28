@@ -4,6 +4,9 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
+/**
+ * HTTP Endpoint to check if payara is still running.
+ */
 @Path("/heartbeat")
 public class HeartBeat {
 
