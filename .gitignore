@@ -7,6 +7,7 @@
 # Package Files #
 *.jar
 *.nar
+*.war
 *.ear
 *.zip
 *.tar.gz
@@ -17,13 +18,7 @@ hs_err_pid*
 
 # intellij
 .idea
-# Letting the .war file through because I can't build on the target machine right now
-# target
-target/classes
-target/generated-sources
-target/Kurumi
-target/maven-archiver
-target/maven-status
+target
 
 # dev db
 /db
