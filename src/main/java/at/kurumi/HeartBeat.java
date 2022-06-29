@@ -11,7 +11,6 @@ import javax.ws.rs.core.Response;
 public class HeartBeat {
 
     @GET
-    @Path("/")
     public Response healthCheck() {
         return Response.ok().entity("I'm alive\n").build();
     }
