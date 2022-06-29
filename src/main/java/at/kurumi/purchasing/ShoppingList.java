@@ -1,12 +1,13 @@
 package at.kurumi.purchasing;
 
 import at.kurumi.Database;
-import at.kurumi.logging.LoggingRouter;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.RollbackException;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 import me.xdrop.fuzzywuzzy.model.BoundExtractedResult;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 
@@ -19,9 +20,9 @@ import java.util.stream.Collectors;
 
 public class ShoppingList {
 
-    @Inject Database database;
+    private static final Logger LOG = LogManager.getLogger();
 
-    @Inject LoggingRouter log;
+    @Inject Database database;
 
     private Query<Groceries> getIdQuery(Session session, String name, String note) {
         final var cb = session.getCriteriaBuilder();
@@ -54,9 +55,7 @@ public class ShoppingList {
             }
 
             final var transaction = session.beginTransaction();
-            item.ifPresentOrElse(i -> {
-                i.setActive(true);
-            }, () -> {
+            item.ifPresentOrElse(i -> i.setActive(true), () -> {
                 final var i = new Groceries();
                 i.setName(name);
                 i.setNote(note);
@@ -64,9 +63,9 @@ public class ShoppingList {
             });
             transaction.commit();
         } catch (RollbackException rollbackException) {
-            log.internalError("Add Grocery Item", "Rollback occurred");
+            LOG.error("Rollback occurred while adding/activating grocery item");
         } catch (PersistenceException persistenceException) {
-            log.internalError("Add Grocery Item", "Persistence Exception");
+            LOG.error("Persistence exception while adding/activating grocery item");
         }
     }
 
@@ -82,16 +81,14 @@ public class ShoppingList {
             }
 
             final var transaction = session.beginTransaction();
-            item.ifPresentOrElse(i -> {
-                i.setActive(false);
-            }, () -> {
+            item.ifPresentOrElse(i -> i.setActive(false), () -> {
                 // TODO add feedback
             });
             transaction.commit();
         } catch (RollbackException rollbackException) {
-            log.internalError("Add Grocery Item", "Rollback occurred");
+            LOG.error("Rollback occurred while deactivating grocery item");
         } catch (PersistenceException persistenceException) {
-            log.internalError("Add Grocery Item", "Persistence Exception");
+            LOG.error("Persistence exception while deactivating grocery item");
         }
     }
 
@@ -110,7 +107,7 @@ public class ShoppingList {
 
             return new ArrayList<>(results);
         } catch (PersistenceException persistenceException) {
-            log.internalError("List active Grocery items", "Database interaction failed");
+            LOG.error("Persistence exception while listing grocery items");
             return Collections.emptyList();
         }
     }
