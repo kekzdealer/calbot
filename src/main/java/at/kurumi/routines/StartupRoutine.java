@@ -1,17 +1,15 @@
 package at.kurumi.routines;
 
-import at.kurumi.docker.ContainerRunningEvent;
+import at.kurumi.docker.ContainerAvailableEvent;
 import at.kurumi.docker.DockerInterface;
+import jakarta.annotation.PostConstruct;
 import jakarta.ejb.Startup;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.context.Initialized;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
-import javax.annotation.PostConstruct;
-
-@ApplicationScoped
+@Singleton
+@Startup
 public class StartupRoutine {
 
     private final DockerInterface dockerInterface;
@@ -21,11 +19,12 @@ public class StartupRoutine {
         this.dockerInterface = dockerInterface;
     }
 
-    public void onStart(@Observes @Initialized(ApplicationScoped.class) Object pointless) {
+    @PostConstruct
+    public void onStart() {
         dockerInterface.newContainer("/at/kurumi/routines/kurumi-db.dc", true);
     }
 
-    private void startDiscordInterface(@Observes ContainerRunningEvent condition) {
+    private void startDiscordInterface(@Observes ContainerAvailableEvent condition) {
 
     }
 

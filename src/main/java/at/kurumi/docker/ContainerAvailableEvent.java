@@ -3,11 +3,11 @@ package at.kurumi.docker;
 /**
  * Event signalling that a Docker container has been started and passed its first health-check
  */
-public class ContainerRunningEvent {
+public class ContainerAvailableEvent {
 
     private String containerName;
 
-    public ContainerRunningEvent(String containerName) {
+    public ContainerAvailableEvent(String containerName) {
         this.containerName = containerName;
     }
 }

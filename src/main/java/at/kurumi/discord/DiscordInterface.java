@@ -7,28 +7,39 @@ import at.kurumi.discord.commands.register.RegisterCommand;
 import at.kurumi.discord.commands.shutdown.ShutdownCommand;
 import at.kurumi.discord.commands.user.UserCommand;
 import at.kurumi.discord.commands.work.WorkCommand;
+import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.interaction.ApplicationCommandInteractionEvent;
 import discord4j.core.event.domain.interaction.ChatInputAutoCompleteEvent;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
+import discord4j.core.object.entity.User;
+import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.core.object.presence.ClientActivity;
 import discord4j.core.object.presence.ClientPresence;
 import discord4j.core.object.presence.Status;
+import discord4j.core.spec.EmbedCreateSpec;
+import discord4j.rest.util.Color;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import jakarta.ejb.Schedule;
+import jakarta.ejb.Startup;
 import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import reactor.core.publisher.Mono;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
+@Singleton
+@Startup
 public class DiscordInterface {
 
     private static final Logger LOG = LogManager.getLogger();
+
     private static final long KURIS_LAB_GUILD_ID = 136661702287556608L;
 
     private final Map<String, Command> commands = new HashMap<>();
@@ -46,18 +57,20 @@ public class DiscordInterface {
     private GatewayDiscordClient discordClient;
 
     @PostConstruct
-    public void startup() {
+    public void onConstruct() {
+        LOG.info("Constructing Discord Interface");
         discordClient = DiscordClientBuilder.create("token").build()
                 .login()
                 .doOnError(e -> LOG.error("Failed to authenticate with Discord"))
-                .doOnSuccess(e -> LOG.info("Connected to Discord"))
+                .doOnSuccess(e -> LOG.trace("Connected to Discord"))
                 .block();
         if (discordClient == null) {
-            throw new RuntimeException("GatewayDiscordClient is null");
+            LOG.error("Discord client is null. Interface will not function");
+            return;
         }
 
         discordClient.on(ReadyEvent.class)
-                .doOnNext(e -> LOG.info("Logged in as {}", e.getSelf().getUsername()))
+                .doOnNext(e -> LOG.trace("Logged in as {}", e.getSelf().getUsername()))
                 .subscribe();
         discordClient.on(ApplicationCommandInteractionEvent.class, this::delegateToProgram)
                 .subscribe();
@@ -69,29 +82,39 @@ public class DiscordInterface {
         registerCommand(shutdownCommand);
         registerCommand(registerCommand);
         registerCommand(workCommand);
+
+        setPresence(Status.ONLINE, "Cyberspace Shmyberspace");
+
+        LOG.info("Constructed Discord Interface");
     }
 
     @PreDestroy
-    public void shutdown() {
+    public void onDestroy() {
+        LOG.info("Destroying Discord Interface");
         discordClient.logout();
+        LOG.info("Destroyed Discord Interface");
     }
 
-    /**
-     * Update Discord presence with a new "X is playing..." message.
-     */
-    @Schedule(hour="*/1", info="Update the Discord presence every hour", persistent = false)
-    public void cyclePresence() {
-        final var r= new Random();
-        final var dia = List.of("Digital Interaction Assistant",
-                "Dynamically Integrating Assistant",
-                "Delectable Illumination Assistant",
-                "Dutiful Irrigation Assistant",
-                "Dashing Incident Assistant",
-                "Dubious Investment Advisor");
-        final var selection = dia.get(r.nextInt(dia.size()));
-        final var activity = ClientActivity.playing(selection);
-        final var status = Status.ONLINE;
+    private void setPresence(Status status, String presence) {
+        final var activity = ClientActivity.playing(presence);
         discordClient.updatePresence(ClientPresence.of(status, activity)).block();
+    }
+
+    private void sendEmbedInChannel(Snowflake guildId, Snowflake channelId, EmbedCreateSpec embedCreateSpec) {
+        discordClient.getGuildById(guildId)
+                .flatMap(guild -> guild.getChannelById(channelId)
+                        .ofType(MessageChannel.class))
+                .flatMap(channel -> channel.createMessage(embedCreateSpec))
+                .subscribe();
+    }
+
+    private EmbedCreateSpec createOkEmbed(String title, /*User initiator, */String message) {
+        return EmbedCreateSpec.builder()
+                .color(Color.GREEN)
+                .title(title)
+                .description(message)
+                //.addField("Initiator", initiator.getMention(), false)
+                .build();
     }
 
     private Mono<Void> delegateToProgram(ApplicationCommandInteractionEvent event) {
