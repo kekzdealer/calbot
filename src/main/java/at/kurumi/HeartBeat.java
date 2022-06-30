@@ -13,7 +13,7 @@ import javax.ws.rs.core.Response;
 @Path("/heartbeat")
 public class HeartBeat {
 
-    @Inject
+    @javax.inject.Inject
     private StartupRoutine fuck;
 
     @GET
