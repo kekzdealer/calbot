@@ -1,10 +1,9 @@
 package at.kurumi.discord.commands.user;
 
 import at.kurumi.Database;
+import at.kurumi.LoggerFacade;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.time.ZoneId;
 import java.util.List;
@@ -14,7 +13,7 @@ import java.util.function.Consumer;
 @Stateless
 public class UserSLO {
 
-    private static final Logger LOG = LogManager.getLogger();
+    private static final LoggerFacade LOG = LoggerFacade.getLogger(UserSLO.class);
 
     private final Database database;
 

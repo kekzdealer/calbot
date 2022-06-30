@@ -7,8 +7,6 @@ import jakarta.ejb.Stateless;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.RollbackException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -25,7 +23,7 @@ import java.util.function.Consumer;
 @Stateless
 public class Database {
 
-    private static final Logger LOG = LogManager.getLogger("Database");
+    private static final LoggerFacade LOG = LoggerFacade.getLogger(Database.class);
 
     private final SessionFactory sessionFactory;
 

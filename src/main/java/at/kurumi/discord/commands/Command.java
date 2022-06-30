@@ -1,13 +1,12 @@
 package at.kurumi.discord.commands;
 
+import at.kurumi.LoggerFacade;
 import discord4j.core.event.domain.interaction.ChatInputAutoCompleteEvent;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandOption;
 import discord4j.core.spec.InteractionApplicationCommandCallbackSpec;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
 import discord4j.discordjson.json.ImmutableApplicationCommandOptionData;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -23,7 +22,7 @@ public abstract class Command {
             true
     );
 
-    protected final Logger LOG = LogManager.getLogger();
+    protected final LoggerFacade LOG = LoggerFacade.getLogger(Command.class);
 
     /**
      * Get the name this command should be listed under in Discord.

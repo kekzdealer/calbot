@@ -1,13 +1,12 @@
 package at.kurumi.purchasing;
 
 import at.kurumi.Database;
+import at.kurumi.LoggerFacade;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.RollbackException;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 import me.xdrop.fuzzywuzzy.model.BoundExtractedResult;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 
@@ -20,7 +19,7 @@ import java.util.stream.Collectors;
 
 public class ShoppingList {
 
-    private static final Logger LOG = LogManager.getLogger();
+    private static final LoggerFacade LOG = LoggerFacade.getLogger(ShoppingList.class);
 
     @Inject Database database;
 
