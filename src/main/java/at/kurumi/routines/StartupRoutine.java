@@ -3,13 +3,12 @@ package at.kurumi.routines;
 import at.kurumi.docker.ContainerAvailableEvent;
 import at.kurumi.docker.DockerInterface;
 import jakarta.annotation.PostConstruct;
+import jakarta.ejb.Singleton;
 import jakarta.ejb.Startup;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
 
 import java.util.logging.Level;
-import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 @Singleton
@@ -25,6 +24,7 @@ public class StartupRoutine {
 
     @PostConstruct
     public void onStart() {
+        System.out.println("ALLLLLLLLLLLLLLLOOOOOOOOOOOOOOOOOOO");
         final var rootLogger = Logger.getLogger("");
         final var logLevel = Level.ALL;
         rootLogger.setLevel(logLevel);
