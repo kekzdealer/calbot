@@ -8,6 +8,10 @@ import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
+
 @Singleton
 @Startup
 public class StartupRoutine {
@@ -21,6 +25,14 @@ public class StartupRoutine {
 
     @PostConstruct
     public void onStart() {
+        final var rootLogger = Logger.getLogger("");
+        final var logLevel = Level.ALL;
+        rootLogger.setLevel(logLevel);
+        for(var handler : rootLogger.getHandlers()) {
+            handler.setLevel(logLevel);
+        }
+        rootLogger.severe("Set log level to: " + logLevel.getName());
+
         dockerInterface.newContainer("/at/kurumi/routines/kurumi-db.dc", true);
     }
 
