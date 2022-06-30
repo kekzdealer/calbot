@@ -2,6 +2,7 @@ package at.kurumi.purchasing;
 
 import at.kurumi.Database;
 import at.kurumi.LoggerFacade;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.RollbackException;
@@ -17,11 +18,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@ApplicationScoped
 public class ShoppingList {
 
     private static final LoggerFacade LOG = LoggerFacade.getLogger(ShoppingList.class);
 
-    @Inject Database database;
+    private final Database database;
+
+    @Inject
+    public ShoppingList(Database database) {
+        this.database = database;
+    }
 
     private Query<Groceries> getIdQuery(Session session, String name, String note) {
         final var cb = session.getCriteriaBuilder();
