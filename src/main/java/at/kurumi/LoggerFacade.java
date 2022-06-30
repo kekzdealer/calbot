@@ -1,7 +1,5 @@
 package at.kurumi;
 
-import jakarta.enterprise.inject.Produces;
-
 import java.util.logging.Logger;
 
 /**
@@ -15,11 +13,14 @@ public class LoggerFacade {
         logger = Logger.getLogger(name);
     }
 
-    @Produces
     public static LoggerFacade getLogger(String name) {
         return new LoggerFacade(name);
     }
-    
+
+    public static LoggerFacade getLogger(Class<?> name) {
+        return getLogger(name.getName());
+    }
+
     public void info(String s) {
         logger.info(s);
     }

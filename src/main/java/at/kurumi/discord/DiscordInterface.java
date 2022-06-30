@@ -36,16 +36,11 @@ import java.util.Optional;
 @Startup
 public class DiscordInterface {
 
+    private static final LoggerFacade log = LoggerFacade.getLogger(DiscordInterface.class);
+
     private static final long KURIS_LAB_GUILD_ID = 136661702287556608L;
 
     private final Map<String, Command> commands = new HashMap<>();
-
-    private final LoggerFacade log;
-
-    @Inject
-    public DiscordInterface(LoggerFacade log) {
-        this.log = log;
-    }
 
     /*
         This list might grow very long in the future, so I'm using field injection instead of constructor injection.

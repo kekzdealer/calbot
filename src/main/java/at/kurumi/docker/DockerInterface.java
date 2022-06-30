@@ -24,12 +24,7 @@ import java.util.stream.Stream;
 @Startup
 public class DockerInterface {
 
-    private final LoggerFacade log;
-
-    @Inject
-    public DockerInterface(LoggerFacade log) {
-        this.log = log;
-    }
+    private static final LoggerFacade log = LoggerFacade.getLogger(DockerInterface.class);
 
     private DockerClient dockerClient;
 
