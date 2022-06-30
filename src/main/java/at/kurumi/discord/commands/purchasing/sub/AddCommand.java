@@ -14,7 +14,7 @@ import discord4j.discordjson.json.ApplicationCommandOptionData;
 import jakarta.ejb.Stateless;
 import reactor.core.publisher.Mono;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.util.List;
 import java.util.stream.Collectors;
 

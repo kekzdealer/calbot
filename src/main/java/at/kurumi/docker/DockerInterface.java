@@ -9,7 +9,6 @@ import io.netty.util.internal.StringUtil;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.ejb.Startup;
-import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 import java.io.BufferedReader;

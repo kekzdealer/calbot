@@ -6,6 +6,8 @@ import at.kurumi.discord.commands.user.UserSLO;
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandOption;
 import discord4j.discordjson.json.ApplicationCommandOptionData;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -13,12 +15,14 @@ import java.util.List;
 /**
  * Sets a new nickname for a user. The default nickname is whatever discord name the user had during registration.
  */
+@Stateless
 public class NicknameCommand extends Command {
 
     private static final String PARAM_NICKNAME = "nickname";
 
     private final UserSLO userSLO;
 
+    @Inject
     public NicknameCommand(UserSLO userSLO) {
         this.userSLO = userSLO;
     }
