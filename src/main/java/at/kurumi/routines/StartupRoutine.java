@@ -22,7 +22,7 @@ public class StartupRoutine {
 //        this.dockerInterface = dockerInterface;
 //    }
 
-    @PostConstruct
+    //@PostConstruct
     public void onStart(@Observes @Initialized(ApplicationScoped.class) Object pointless) {
         System.out.println("ALLLLLLLLLLLLLLLOOOOOOOOOOOOOOOOOOO");
         final var rootLogger = Logger.getLogger("");
