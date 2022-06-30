@@ -3,9 +3,9 @@ package at.kurumi;
 import at.kurumi.routines.StartupRoutine;
 import jakarta.inject.Inject;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.core.Response;
 
 /**
  * HTTP Endpoint to check if payara is still running.
@@ -13,7 +13,7 @@ import javax.ws.rs.core.Response;
 @Path("/heartbeat")
 public class HeartBeat {
 
-    @javax.inject.Inject
+    @Inject
     private StartupRoutine fuck;
 
     @GET
