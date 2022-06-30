@@ -9,10 +9,11 @@ import jakarta.enterprise.context.Initialized;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 
+import javax.inject.Singleton;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-@ApplicationScoped
+@Singleton
 public class StartupRoutine {
 
 //    private final DockerInterface dockerInterface;
