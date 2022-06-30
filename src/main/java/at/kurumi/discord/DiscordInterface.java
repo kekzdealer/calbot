@@ -1,5 +1,6 @@
 package at.kurumi.discord;
 
+import at.kurumi.LoggerFacade;
 import at.kurumi.discord.commands.Command;
 import at.kurumi.discord.commands.CommandUtil;
 import at.kurumi.discord.commands.calendar.CalendarCommand;
@@ -25,8 +26,6 @@ import jakarta.annotation.PreDestroy;
 import jakarta.ejb.Startup;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
@@ -37,16 +36,21 @@ import java.util.Optional;
 @Startup
 public class DiscordInterface {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DiscordInterface.class);
-
     private static final long KURIS_LAB_GUILD_ID = 136661702287556608L;
 
     private final Map<String, Command> commands = new HashMap<>();
 
+    private final LoggerFacade log;
+
+    @Inject
+    public DiscordInterface(LoggerFacade log) {
+        this.log = log;
+    }
+
     /*
-    This list might grow very long in the future, so I'm using field injection instead of constructor injection.
-    I don't want a constructor with more than or so parameters.
-     */
+        This list might grow very long in the future, so I'm using field injection instead of constructor injection.
+        I don't want a constructor with more than or so parameters.
+         */
     @Inject private CalendarCommand calendarCommand;
     @Inject private UserCommand userCommand;
     @Inject private ShutdownCommand shutdownCommand;
@@ -57,19 +61,19 @@ public class DiscordInterface {
 
     @PostConstruct
     public void onConstruct() {
-        LOG.info("Constructing Discord Interface");
+        log.info("Constructing Discord Interface");
         discordClient = DiscordClientBuilder.create("token").build()
                 .login()
-                .doOnError(e -> LOG.error("Failed to authenticate with Discord"))
-                .doOnSuccess(e -> LOG.trace("Connected to Discord"))
+                .doOnError(e -> log.error("Failed to authenticate with Discord"))
+                .doOnSuccess(e -> log.trace("Connected to Discord"))
                 .block();
         if (discordClient == null) {
-            LOG.error("Discord client is null. Interface will not function");
+            log.error("Discord client is null. Interface will not function");
             return;
         }
 
         discordClient.on(ReadyEvent.class)
-                .doOnNext(e -> LOG.trace("Logged in as {}", e.getSelf().getUsername()))
+                .doOnNext(e -> log.trace("Logged in as {}", e.getSelf().getUsername()))
                 .subscribe();
         discordClient.on(ApplicationCommandInteractionEvent.class, this::delegateToProgram)
                 .subscribe();
@@ -84,14 +88,14 @@ public class DiscordInterface {
 
         setPresence(Status.ONLINE, "Cyberspace Shmyberspace");
 
-        LOG.info("Constructed Discord Interface");
+        log.info("Constructed Discord Interface");
     }
 
     @PreDestroy
     public void onDestroy() {
-        LOG.info("Destroying Discord Interface");
+        log.info("Destroying Discord Interface");
         discordClient.logout();
-        LOG.info("Destroyed Discord Interface");
+        log.info("Destroyed Discord Interface");
     }
 
     private void setPresence(Status status, String presence) {
@@ -135,7 +139,7 @@ public class DiscordInterface {
                 command.getDescription(),
                 command.getOptions());
         commands.put(command.getName(), command);
-        LOG.info("Registered {} command", command.getName());
+        log.info("Registered {} command", command.getName());
     }
 
 }

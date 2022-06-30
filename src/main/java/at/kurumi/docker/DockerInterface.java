@@ -1,5 +1,6 @@
 package at.kurumi.docker;
 
+import at.kurumi.LoggerFacade;
 import at.kurumi.docker.entities.Container;
 import at.kurumi.docker.entities.ContainerParameter;
 import com.github.dockerjava.api.DockerClient;
@@ -8,9 +9,8 @@ import io.netty.util.internal.StringUtil;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.ejb.Startup;
+import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -24,30 +24,35 @@ import java.util.stream.Stream;
 @Startup
 public class DockerInterface {
 
-    private static final Logger LOG = LogManager.getLogger();
+    private final LoggerFacade log;
+
+    @Inject
+    public DockerInterface(LoggerFacade log) {
+        this.log = log;
+    }
 
     private DockerClient dockerClient;
 
     @PostConstruct
     protected void onConstruct() {
-        LOG.info("Constructing Docker Interface");
+        log.info("Constructing Docker Interface");
         dockerClient = DockerClientBuilder.getInstance().build();
-        LOG.info("Constructed Docker Interface");
+        log.info("Constructed Docker Interface");
     }
 
     @PreDestroy
     protected void onDestroy() {
-        LOG.info("Destroying Docker Interface");
+        log.info("Destroying Docker Interface");
         try {
             dockerClient.close();
-            LOG.info("Destroyed Docker Interface");
+            log.info("Destroyed Docker Interface");
         } catch (IOException e) {
-            LOG.error("Failed to destroy Discord interface. Resources may not have been released");
+            log.error("Failed to destroy Discord interface. Resources may not have been released");
         }
     }
 
     public String newContainer(String resourceName, boolean start) {
-        LOG.trace("Creating {} Docker container: {}", start ? "and starting" : "", resourceName);
+        log.trace("Creating {} Docker container: {}", start ? "and starting" : "", resourceName);
         try (final var is = DockerInterface.class.getClassLoader().getResourceAsStream(resourceName);
              final var isr = new InputStreamReader(is);
              final var br = new BufferedReader(isr)) {
@@ -56,7 +61,7 @@ public class DockerInterface {
             if (container.isPresent()) {
                 final var c = container.get();
                 final var response = c.create(dockerClient);
-                Arrays.stream(response.getWarnings()).forEach(LOG::warn);
+                Arrays.stream(response.getWarnings()).forEach(log::warn);
                 if(start) {
                     c.start(dockerClient);
                 }
@@ -65,10 +70,10 @@ public class DockerInterface {
             }
             return "";
         } catch (FileNotFoundException | NullPointerException e) {
-            LOG.error("Could not find container config file");
+            log.error("Could not find container config file");
             return "";
         } catch (IOException e) {
-            LOG.error("Could not read container config file");
+            log.error("Could not read container config file");
             return "";
         }
     }
@@ -91,17 +96,17 @@ public class DockerInterface {
                         case "volume": parameter.addVolumeMapping(v); break;
                         case "#": /*This line is a comment, ignore it*/ break;
                         // TODO: This should really be an error and cancel the parse process but idk how to get out of here
-                        default: LOG.warn("Unknown container config key: {}", kv[0]);
+                        default: log.warn("Unknown container config key: {}", kv[0]);
                     }
                 });
 
         if(StringUtil.isNullOrEmpty(parameter.getImage())) {
-            LOG.error("Missing image name in container config");
+            log.error("Missing image name in container config");
             return Optional.empty();
         }
 
         if(StringUtil.isNullOrEmpty(parameter.getContainerName())) {
-            LOG.error("Missing container name in container config");
+            log.error("Missing container name in container config");
             return Optional.empty();
         }
 
