@@ -20,8 +20,8 @@ public class HeartBeat extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.setContentType("text/html");
+        resp.setContentType("text/plain");
         var out = resp.getWriter();
-        out.println("<p>I'm alive</p>");
+        out.println("I'm alive");
     }
 }
