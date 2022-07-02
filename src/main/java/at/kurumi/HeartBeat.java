@@ -11,17 +11,11 @@ import java.io.IOException;
 /**
  * HTTP Endpoint to check if payara is still running.
  */
-@WebServlet(
-        name = "HeartBeat",
-        description = "Check if the Server is still running",
-        urlPatterns = {"/heartbeat"}
-)
+@WebServlet("/heartbeat")
 public class HeartBeat extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.setContentType("text/plain");
-        var out = resp.getWriter();
-        out.println("I'm alive");
+        resp.getOutputStream().println("Alive");
     }
 }
