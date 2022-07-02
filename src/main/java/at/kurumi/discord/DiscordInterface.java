@@ -3,11 +3,9 @@ package at.kurumi.discord;
 import at.kurumi.LoggerFacade;
 import at.kurumi.discord.commands.Command;
 import at.kurumi.discord.commands.CommandUtil;
-import at.kurumi.discord.commands.calendar.CalendarCommand;
-import at.kurumi.discord.commands.register.RegisterCommand;
-import at.kurumi.discord.commands.shutdown.ShutdownCommand;
-import at.kurumi.discord.commands.user.UserCommand;
-import at.kurumi.discord.commands.work.WorkCommand;
+
+import at.kurumi.discord.commands.purchasing.sub.AddCommand;
+
 import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
@@ -46,11 +44,7 @@ public class DiscordInterface {
         This list might grow very long in the future, so I'm using field injection instead of constructor injection.
         I don't want a constructor with more than or so parameters.
          */
-    @Inject private CalendarCommand calendarCommand;
-    @Inject private UserCommand userCommand;
-    @Inject private ShutdownCommand shutdownCommand;
-    @Inject private RegisterCommand registerCommand;
-    @Inject private WorkCommand workCommand;
+    @Inject private AddCommand addCommand;
 
     private GatewayDiscordClient discordClient;
 
@@ -75,11 +69,7 @@ public class DiscordInterface {
         discordClient.on(ChatInputAutoCompleteEvent.class, this::delegateAutoComplete)
                 .subscribe();
 
-        registerCommand(calendarCommand);
-        registerCommand(userCommand);
-        registerCommand(shutdownCommand);
-        registerCommand(registerCommand);
-        registerCommand(workCommand);
+        registerCommand(addCommand);
 
         setPresence(Status.ONLINE, "Cyberspace Shmyberspace");
 
