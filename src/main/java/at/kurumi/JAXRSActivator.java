@@ -6,7 +6,7 @@ import jakarta.ws.rs.core.Application;
 /**
  * Apparently needed to get JAX RS running.
  */
-@ApplicationPath("rest")
+@ApplicationPath("/")
 public class JAXRSActivator extends Application {
 
 }
