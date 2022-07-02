@@ -1,7 +1,5 @@
 package at.kurumi;
 
-import at.kurumi.discord.commands.calendar.Event;
-import at.kurumi.discord.commands.user.User;
 import at.kurumi.purchasing.Groceries;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.NoResultException;
@@ -30,8 +28,6 @@ public class Database {
     public Database() {
         LOG.info("Initializing Hibernate");
         sessionFactory = new Configuration().configure("hibernate.cfg.xml")
-                .addAnnotatedClass(User.class)
-                .addAnnotatedClass(Event.class)
                 .addAnnotatedClass(Groceries.class)
                 .buildSessionFactory();
         LOG.info("Initialized Hibernate");
