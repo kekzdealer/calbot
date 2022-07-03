@@ -69,6 +69,12 @@
             <version>9.1.0</version>
             <scope>provided</scope>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.discord4j/discord4j-core -->
+        <dependency>
+            <groupId>com.discord4j</groupId>
+            <artifactId>discord4j-core</artifactId>
+            <version>3.2.2</version>
+        </dependency>
     </dependencies>
     
 </project>
