@@ -1,13 +1,16 @@
 package at.kurumi;
 
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
 @Path("/groceries")
 public class Groceries {
+
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    public String index() {
+        return "Use /add to add";
+    }
 
     @POST
     @Path("/add")
