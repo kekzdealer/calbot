@@ -20,7 +20,7 @@ public class Groceries {
     @Produces(MediaType.TEXT_PLAIN)
     public String add(@QueryParam("name") String item) {
         db.add(item);
-        return "added: " + item;
+        return "added: " + item + "\n";
     }
 
     @GET
