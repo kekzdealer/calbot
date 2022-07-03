@@ -12,10 +12,10 @@ public class Groceries {
         return "Use /add to add";
     }
 
-    @POST
-    @Path("/add")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String add(@QueryParam("name") String item) {
-        return "added: " + item;
-    }
+//    @GET
+//    @Path("/add")
+//    @Produces(MediaType.TEXT_PLAIN)
+//    public String add(@QueryParam("name") String item) {
+//        return "added: " + item;
+//    }
 }
