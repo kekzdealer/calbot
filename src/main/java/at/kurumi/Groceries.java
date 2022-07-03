@@ -9,13 +9,13 @@ public class Groceries {
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public String index() {
-        return "Use /add to add";
+        return "Use /add to add\n";
     }
 
-//    @GET
-//    @Path("/add")
-//    @Produces(MediaType.TEXT_PLAIN)
-//    public String add(@QueryParam("name") String item) {
-//        return "added: " + item;
-//    }
+    @GET
+    @Path("/add")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String add(@QueryParam("name") String item) {
+        return "added: " + item;
+    }
 }
