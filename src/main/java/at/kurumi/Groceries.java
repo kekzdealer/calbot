@@ -22,4 +22,13 @@ public class Groceries {
         db.add(item);
         return "added: " + item;
     }
+
+    @GET
+    @Path("/list")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String list() {
+        final var sb = new StringBuilder();
+        db.getItems().forEach(s -> sb.append(s).append("\n"));
+        return sb.toString();
+    }
 }
