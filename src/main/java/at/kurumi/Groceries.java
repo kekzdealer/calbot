@@ -1,10 +1,12 @@
 package at.kurumi;
 
+import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
 @Path("/groceries")
+@RequestScoped
 public class Groceries {
 
     @Inject LoggerFacade log;

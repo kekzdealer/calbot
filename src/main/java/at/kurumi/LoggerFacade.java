@@ -8,6 +8,7 @@ import java.util.logging.Logger;
  * Tiny class so I can inject Loggers.
  */
 @Dependent
+// TODO Dependent doesn't seem to work here
 public class LoggerFacade {
 
     private final Logger logger;
